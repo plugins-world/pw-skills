@@ -138,6 +138,7 @@ Image-Generation/
 ├── config.example/           # 配置模板
 │   ├── README.md
 │   ├── secrets.md            # API 配置模板
+│   ├── style-library.md      # 风格库（9种预设风格）
 │   ├── .gitignore            # 项目 gitignore 模板
 │   └── prompt-templates/
 │       └── 提示词模板.md      # 提示词模板
@@ -372,6 +373,22 @@ npm install node-fetch
 ---
 
 ## 高级功能
+
+### 风格库
+
+Skill 提供 9 种预设风格，保证图像风格一致性：
+
+- 水彩风格 (watercolor) - 柔和温馨
+- 扁平化设计 (flat-design) - 现代简洁
+- 3D 渲染 (3d-render) - 立体真实
+- 油画风格 (oil-painting) - 艺术经典
+- 赛博朋克 (cyberpunk) - 科幻未来
+- 像素艺术 (pixel-art) - 复古怀旧
+- 手绘插画 (hand-drawn) - 温暖个性
+- 照片写实 (photorealistic) - 高度真实
+- 抽象艺术 (abstract) - 情感表达
+
+查看 `config.example/style-library.md` 了解每种风格的详细说明和使用场景。
 
 ### 风格迁移
 
