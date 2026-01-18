@@ -145,8 +145,7 @@ Image-Generation/
 ├── scripts/
 │   ├── analyze-image.js      # 分析图像风格
 │   ├── generate-prompt.js    # 提示词辅助生成
-│   ├── generate-image.js     # 生成图像（支持确认和跳过）
-│   └── upload-to-cdn.js      # 图床上传功能
+│   └── generate-image.js     # 生成图像（支持确认和跳过）
 └── package.json              # 依赖配置
 ```
 
@@ -224,12 +223,6 @@ node /path/to/Image-Generation/scripts/generate-image.js [输出目录]
 # 示例
 node /path/to/Image-Generation/scripts/generate-image.js
 node /path/to/Image-Generation/scripts/generate-image.js ./custom-output
-```
-
-### 图床上传（可选）
-
-```bash
-node /path/to/Image-Generation/scripts/upload-to-cdn.js <图片路径>
 ```
 
 ---
