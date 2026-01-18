@@ -223,9 +223,8 @@ async function main() {
     if (prompts.length === 0) {
       console.error('错误: 未找到提示词文件');
       console.error('');
-      console.error('请先创建提示词文件:');
-      console.error('  1. 使用提示词辅助工具: node /path/to/skill/scripts/generate-prompt.js');
-      console.error('  2. 或手动创建: output/prompts/你的提示词.md');
+      console.error('请先创建提示词文件，参考:');
+      console.error('  ~/.claude/skills/Image-Generation/config.example/prompt-templates/提示词模板.md');
       console.error('');
       console.error('提示词文件格式:');
       console.error('  ## 提示词');

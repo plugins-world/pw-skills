@@ -25,8 +25,8 @@ config.example/
 
 ```bash
 # 在您的项目根目录执行（仅在需要自定义配置时）
-cp -r /path/to/Image-Generation/config.example ./config
-cp /path/to/Image-Generation/config.example/.gitignore ./.gitignore
+cp -r ~/.claude/skills/Image-Generation/config.example ./config
+cp ~/.claude/skills/Image-Generation/config.example/.gitignore ./.gitignore
 ```
 
 ### 2. 配置 API 密钥
@@ -106,13 +106,10 @@ mkdir my-image-project && cd my-image-project
 npm init -y && npm install node-fetch
 
 # 2. 分析图像风格（可选）
-node /path/to/Image-Generation/scripts/analyze-image.js https://example.com/reference.png
+node ~/.claude/skills/Image-Generation/scripts/analyze-image.js https://example.com/reference.png
 
-# 3. 生成提示词（可选）
-node /path/to/Image-Generation/scripts/generate-prompt.js
-
-# 4. 生成图像（逐张确认）
-node /path/to/Image-Generation/scripts/generate-image.js
+# 3. 生成图像（逐张确认）
+node ~/.claude/skills/Image-Generation/scripts/generate-image.js
 ```
 
 ## 常见问题

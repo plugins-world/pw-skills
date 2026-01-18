@@ -1,0 +1,15 @@
+{
+  "name": "image-generation-skill",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Image generation skill with utility scripts",
+  "scripts": {
+    "generate": "node scripts/generate-image.js",
+    "merge": "node scripts/merge-images.js",
+    "pptx": "node scripts/images2pptx.js"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "pptxgenjs": "^3.12.0"
+  }
+}

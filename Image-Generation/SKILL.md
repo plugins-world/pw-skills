@@ -1,5 +1,5 @@
 ---
-name: image-gen
+name: pw-image-gen
 description: Image-Generation - 基于垫图和提示词的 AI 图像生成工作流。支持文生图、图生图、批量生成。
 ---
 
@@ -28,23 +28,23 @@ description: Image-Generation - 基于垫图和提示词的 AI 图像生成工�
 
 ## 快速开始
 
-### Step 1: 创建项目目录
+### Step 1: 安装 Skill 依赖
+
+```bash
+cd ~/.claude/skills/Image-Generation && npm install
+```
+
+### Step 2: 创建项目目录
 
 ```bash
 mkdir my-image-project && cd my-image-project
 ```
 
-### Step 2: 安装依赖
-
-```bash
-npm init -y && npm install node-fetch
-```
-
 ### Step 3: 复制配置模板（可选）
 
 ```bash
-cp -r /path/to/Image-Generation/config.example ./config
-cp /path/to/Image-Generation/config.example/.gitignore ./.gitignore
+cp -r ~/.claude/skills/Image-Generation/config.example ./config
+cp ~/.claude/skills/Image-Generation/config.example/.gitignore ./.gitignore
 # 编辑 config/secrets.md 自定义 API 密钥（可选）
 ```
 
@@ -52,7 +52,7 @@ cp /path/to/Image-Generation/config.example/.gitignore ./.gitignore
 
 ```bash
 mkdir -p article-images/prompts
-cp /path/to/Image-Generation/config.example/prompt-templates/提示词模板.md ./article-images/prompts/我的提示词.md
+cp ~/.claude/skills/Image-Generation/config.example/prompt-templates/提示词模板.md ./article-images/prompts/我的提示词.md
 vim ./article-images/prompts/我的提示词.md
 ```
 
@@ -61,10 +61,53 @@ vim ./article-images/prompts/我的提示词.md
 ### Step 5: 生成图像
 
 ```bash
-node /path/to/Image-Generation/scripts/generate-image.js
+node ~/.claude/skills/Image-Generation/scripts/generate-image.js
 ```
 
 脚本会逐张询问确认，避免浪费额度。
+
+---
+
+## 工具脚本
+
+### 生成图像
+
+```bash
+node ~/.claude/skills/Image-Generation/scripts/generate-image.js [输出目录]
+```
+
+### 合并长图
+
+将系列图片合并为一张长图（垂直拼接）：
+
+```bash
+node ~/.claude/skills/Image-Generation/scripts/merge-images.js <图片目录> <输出文件>
+
+# 示例
+node ~/.claude/skills/Image-Generation/scripts/merge-images.js ./images 长图.png
+```
+
+**要求**: 需要安装 ImageMagick
+```bash
+brew install imagemagick
+```
+
+### 合并为 PPT
+
+将系列图片打包为 PPT 文件（每张图片一页）：
+
+```bash
+node ~/.claude/skills/Image-Generation/scripts/images2pptx.js <图片目录> <输出文件>
+
+# 示例
+node ~/.claude/skills/Image-Generation/scripts/images2pptx.js ./images 配图.pptx
+```
+
+**功能**:
+- 自动识别 jpg/png/gif/webp 格式
+- 按文件名数字排序
+- 每张图片占一页，16:9 比例
+- 自动适应页面大小
 
 ---
 
@@ -81,8 +124,6 @@ my-image-project/
 │   ├── prompts/             # 提示词文件
 │   ├── references/          # 参考图像
 │   └── images/              # 生成的图像
-├── node_modules/
-├── package.json
 └── .gitignore
 ```
 
@@ -99,8 +140,12 @@ Image-Generation/
 │       └── 提示词模板.md      # 提示词模板
 ├── scripts/
 │   ├── analyze-image.js      # 分析图像风格
-│   └── generate-image.js     # 生成图像（支持确认和跳过）
-└── package.json
+│   ├── generate-image.js     # 生成图像（支持确认和跳过）
+│   ├── merge-images.js       # 合并长图
+│   └── images2pptx.js        # 打包为 PPT
+├── node_modules/
+├── package.json
+└── package-lock.json
 ```
 
 ---
@@ -121,10 +166,10 @@ Image-Generation/
 
 ### 依赖安装
 
-依赖安装在项目目录，不是 skill 目录：
+依赖安装在 skill 目录，不是项目目录：
 
 ```bash
-npm install node-fetch
+cd ~/.claude/skills/Image-Generation && npm install
 ```
 
 ---
@@ -135,16 +180,16 @@ npm install node-fetch
 
 ```bash
 # 从 URL 分析
-node /path/to/Image-Generation/scripts/analyze-image.js <图像URL>
+node ~/.claude/skills/Image-Generation/scripts/analyze-image.js <图像URL>
 
 # 从本地文件分析
-node /path/to/Image-Generation/scripts/analyze-image.js <本地路径>
+node ~/.claude/skills/Image-Generation/scripts/analyze-image.js <本地路径>
 ```
 
 ### 生成图像
 
 ```bash
-node /path/to/Image-Generation/scripts/generate-image.js [输出目录]
+node ~/.claude/skills/Image-Generation/scripts/generate-image.js [输出目录]
 ```
 
 ---
