@@ -6,93 +6,169 @@
 
 - 文生图：使用文本描述生成图像
 - 图生图：使用参考图片生成类似风格图像
-- 批量生成：一次生成多张图像
+- 批量生成：一次生成多张图像（逐张确认，避免额度浪费）
 - 风格迁移：将一张图片的风格应用到另一张图片
+- 智能跳过：自动检测已生成的图像，支持跳过
+- 逐张确认：生成前需要用户确认，避免大量消耗额度
+
+## 工作流程
+
+```
+分析风格 → 设计提示词 → 安装依赖 → 配置API → 确认生成 → 保存图像
+    ↓          ↓           ↓         ↓         ↓         ↓
+  风格文件    提示词文件   node-fetch  secrets.md  逐张确认  images/
+```
+
+## 让 AI 帮你安装
+
+您可以让 AI 帮助您安装 Image-Generation skill。
+
+### 使用方法
+
+在您的终端中执行：
+
+```bash
+# 让 AI 帮您安装 Image-Generation skill
+# 注意：您需要拥有访问 GitHub 和 ai-router 的权限
+
+让我安装 Image-Generation skill：
+- 地址：https://github.com/[用户名]/Image-Generation（如果您的代码库在 GitHub 上）
+- 存放路径：~/.claude/skills/image-gen
+- API Key：[您的 ai-router API Key]
+
+注意：API Key 是 ai-router 的密钥，支持多种模型，不局限于特定平台。
+```
+
+### 支持的模型
+
+Image-Generation skill 支持多种图像生成模型，包括但不限于：
+- **gemini-3-pro-image-preview**：Google 的 Gemini 3 Pro 图像预览模型
+- **gemini-2.0-flash-exp**：Google 的 Gemini 2.0 Flash 实验模型
+- **claude-4-sonnet-20251101**：Claude 4 Sonnet 模型
+- 其他支持图像生成的模型
+
+### 提示词优化
+
+如果您让 AI 帮助您安装，可以使用以下提示词：
+
+```
+我需要安装 Image-Generation skill，请：
+
+1. 克隆仓库到 ~/.claude/skills/image-gen
+2. 配置 ai-router 的 API Key：[您的 API Key]
+3. 创建项目目录并初始化
+4. 测试技能是否正常工作
+5. 需要支持多种模型，不局限于特定平台
+
+技能特点：
+- 分析图像风格，生成风格分析报告
+- 交互式提示词生成
+- 逐张确认，避免额度浪费
+- 支持图床上传
+- 智能跳过已生成图像
+- 配置文件可选，支持默认配置
+```
+
+### 手动安装（备用方法）
+
+如果 AI 安装遇到问题，您可以手动安装：
+
+```bash
+# 1. 克隆仓库（如果您有仓库）
+mkdir -p ~/.claude/skills/image-gen
+git clone https://github.com/[用户名]/Image-Generation ~/.claude/skills/image-gen
+
+# 2. 创建项目目录
+mkdir my-image-project && cd my-image-project
+npm init -y && npm install node-fetch
+cp ~/.claude/skills/image-gen/config.example/.gitignore ./.gitignore
+
+# 3. 配置（可选）
+cp -r ~/.claude/skills/image-gen/config.example ./config
+# 编辑 config/secrets.md，填入您的 API Key
+```
+
+---
 
 ## 快速开始
 
-### 安装依赖
+### Step 1: 创建项目目录
 
 ```bash
+mkdir my-image-project
+cd my-image-project
+```
+
+### Step 2: 初始化技能（可选，但推荐）
+
+```bash
+# 复制配置模板（自定义配置时需要）
+cp -r /path/to/Image-Generation/config.example ./config
+
+# 复制 .gitignore（推荐）
+cp /path/to/Image-Generation/config.example/.gitignore ./.gitignore
+
+# 编辑配置文件（可选，如需要自定义 API 密钥或域名）
+# vim config/secrets.md
+```
+
+### Step 3: 安装依赖
+
+```bash
+npm init -y
 npm install node-fetch
 ```
 
-### 配置 API Key
-
-��辑 `config/secrets.md` 或直接在配置文件中设置 API Key。
-
-### 单张图像生成
+### Step 4: 分析图像风格（可选）
 
 ```bash
-curl -s -X POST "https://ai-router.plugins-world.cn/v1beta/models/gemini-3-pro-image-preview:generateContent" \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "contents": [
-      {
-        "role": "user",
-        "parts": [
-          {
-            "text": "一只可爱的柴犬在樱花树下睡觉，水彩风格"
-          }
-        ]
-      }
-    ],
-    "generationConfig": {
-      "responseModalities": ["TEXT", "IMAGE"]
-    }
-  }' | python3 -c "
-import json, sys
-data = json.load(sys.stdin)
-if 'candidates' in data:
-    parts = data['candidates'][0]['content']['parts']
-    for part in parts:
-        if 'inlineData' in part:
-            import base64
-            with open('output.png', 'wb') as f:
-                f.write(base64.b64decode(part['inlineData']['data']))
-            print('Image saved as output.png')
-"
+node /path/to/Image-Generation/scripts/analyze-image.js https://example.com/reference.png
 ```
 
-### 批量生成
-
-创建配置文件 `config/batch-config.json`：
-
-```json
-{
-  "apiKey": "YOUR_API_KEY",
-  "delay": 2000,
-  "tasks": [
-    {
-      "prompt": "一只可爱的柴犬在樱花树下睡觉，水彩风格",
-      "outputFile": "result-1.png"
-    },
-    {
-      "prompt": "一只小猫在沙发上打盹，油画风格",
-      "referenceImage": "https://example.com/sofa.png",
-      "outputFile": "result-2.png"
-    }
-  ]
-}
-```
-
-运行批量生成：
+### Step 5: 编写提示词（使用辅助工具）
 
 ```bash
-node scripts/batch-generate.js config/batch-config.json
+node /path/to/Image-Generation/scripts/generate-prompt.js
+```
+
+### Step 6: 生成图像（逐张确认）
+
+```bash
+node /path/to/Image-Generation/scripts/generate-image.js
+```
+
+## 重要功能说明
+
+### 逐张确认机制（避免额度浪费）
+
+```bash
+任务 1/3: 02_提示词_柴犬.md
+提示词: 一只可爱的柴犬在樱花树下睡觉
+
+【重要提示】生成将消耗 API 额度
+是否生成此图像? (y/n, 默认: y):
+```
+
+### 跳过已生成图像
+
+```bash
+任务 1/3: 02_提示词_柴犬.md
+图像已存在: 03_生成图像_柴犬.png
+是否跳过已生成的图像? (y/n, 默认: y):
 ```
 
 ## 文档
 
 | 文档 | 说明 |
 |-----|------|
-| [SKILL.md](./SKILL.md) | 核心 skill 文档 |
+| [SKILL.md](./SKILL.md) | 核心 skill 文档（含详细工作流程） |
 | [docs/01_提示词设计.md](./docs/01_提示词设计.md) | 如何撰写高质量提示词 |
 | [docs/02_垫图准备.md](./docs/02_垫图准备.md) | 垫图选择和优化技巧 |
 | [docs/03_API使用.md](./docs/03_API使用.md) | API 调用详细说明 |
 
 ## 目录结构
+
+### Skill 目录结构
 
 ```
 Image-Generation/
@@ -102,117 +178,157 @@ Image-Generation/
 │   ├── 01_提示词设计.md
 │   ├── 02_垫图准备.md
 │   └── 03_API使用.md
-├── config/
-│   ├── secrets.md            # API Key 配置
-│   └── batch-config.json     # 批量生成配置示例
-└── scripts/
-    └── batch-generate.js     # 批量生成脚本
+├── config.example/           # 配置模板
+│   ├── README.md
+│   ├── secrets.md            # API 配置模板
+│   ├── .gitignore            # 项目 gitignore 模板
+│   └── prompt-templates/
+│       └── 提示词模板.md      # 提示词模板
+├── scripts/
+│   ├── analyze-image.js      # 分析图像风格
+│   ├── generate-prompt.js    # 提示词辅助生成
+│   ├── generate-image.js     # 生成图像（支持确认和跳过）
+│   └── upload-to-cdn.js      # 图床上传功能
+├── package.json              # 依赖配置
+└── .gitignore
 ```
 
-## 示例
+### 项目目录结构
 
-### 文生图
+```
+my-image-project/
+├── config/
+│   └── secrets.md           # API 配置（不提交到版本控制）
+├── output/
+│   ├── analysis/            # 风格分析（可选）
+│   ├── prompts/             # 提示词文件
+│   ├── references/          # 参考图像
+│   └── images/              # 生成的图像
+├── node_modules/            # 依赖包（不提交）
+├── package.json
+├── package-lock.json
+└── .gitignore
+```
 
-输入提示词："一只可爱的柴犬在樱花树下睡觉，水彩风格，柔和的粉色调"
+## 命令参考
 
-输出：生成一张符合描述的图像
+### 分析图像风格
 
-### 图生图
+```bash
+# 从 URL 分析
+node /path/to/Image-Generation/scripts/analyze-image.js <图像URL> [输出目录]
 
-输入垫图：水彩风格画作
+# 从本地文件分析
+node /path/to/Image-Generation/scripts/analyze-image.js <本地路径> [输出目录]
+```
 
-输入提示词："用这张图的风格绘制一座雪山"
+### 提示词辅助生成
 
-输出：生成水彩风格的雪山图像
+```bash
+# 交互式模式（推荐）
+node /path/to/Image-Generation/scripts/generate-prompt.js
 
-### 风格迁移
+# 自动生成模式（需要额外配置）
+node /path/to/Image-Generation/scripts/generate-prompt.js --generate
+```
 
-输入垫图1：水墨画风格的山水画
+### 生成图像
 
-输入垫图2：一张现代城市照片
+```bash
+# 基本用法
+node /path/to/Image-Generation/scripts/generate-image.js [输出目录]
+```
 
-输入提示词："用第一张图的水墨风格重新绘制第二张图的城市"
+### 图床上传（可选）
 
-输出：水墨风格的城市图像
+```bash
+node /path/to/Image-Generation/scripts/upload-to-cdn.js <图片路径>
+```
+
+## 配置文件
+
+### config/secrets.md
+
+```bash
+# API 基础 URL（包含域名和路径前缀）
+API_BASE_URL=https://ai-router.plugins-world.cn
+
+# 图像分析模型（用于分析图像风格）
+ANALYSIS_MODEL_ID=gemini-2.0-flash-exp
+
+# 图像生成模型（用于生成图像）
+GENERATION_MODEL_ID=gemini-3-pro-image-preview
+
+# 分析端点路��（会拼接在 API_BASE_URL 后面）
+ANALYSIS_ENDPOINT=/v1beta/models/{model}:generateContent
+
+# 生成端点路径（会拼接在 API_BASE_URL 后面）
+GENERATION_ENDPOINT=/v1beta/models/{model}:generateContent
+
+# AI Router API 密钥（支持多种模型，不局限于特定平台）
+API_KEY=your-ai-router-api-key-here
+
+# 图床上传端点（如果不配置，则使用 BASE64 内嵌）
+IMAGE_UPLOAD_ENDPOINT=
+```
+
+### API Key 说明
+
+- **API Key**：使用 ai-router 的 API 密钥
+- **支持的模型**：不仅限于特定平台，支持多种图像生成模型
+- **获取方式**：访问 https://ai-router.plugins-world.cn 获取 API Key
+
+## 依赖
+
+```bash
+npm install node-fetch
+```
+
+## 最佳实践
+
+1. **先测试单个图像**：确认提示词效果后再批量生成
+2. **使用确认机制**：不要跳过确认步骤，避免浪费额度
+3. **保存好的提示词**：将成功的提示词保存为模板
+4. **定期备份生成的图像**：避免意外丢失
+5. **监控额度使用**：注意 API 调用次数和费用
 
 ## 高级功能
 
-### 多张垫图
+### 风格迁移
 
-可以同时使用多张垫图来控制风格和内容：
+```markdown
+## 提示词
 
-```json
-{
-  "contents": [
-    {
-      "role": "user",
-      "parts": [
-        {
-          "file_data": {
-            "mime_type": "image/png",
-            "file_uri": "https://example.com/style-ref.png"
-          }
-        },
-        {
-          "file_data": {
-            "mime_type": "image/png",
-            "file_uri": "https://example.com/content-ref.png"
-          }
-        },
-        {
-          "text": "用第一张图的风格重新绘制第二张图"
-        }
-      ]
-    }
-  ]
-}
+参考 01_图像风格分析_xxx.md 中描述的水彩风格，绘制一座雪山
 ```
 
-### 参数调整
+### 自定义输出文件名
 
-调整 `temperature` 参数控制随机性：
+提示词文件名会直接映射到生成的图像文件名：
 
-```json
-{
-  "generationConfig": {
-    "responseModalities": ["TEXT", "IMAGE"],
-    "temperature": 0.3
-  }
-}
-```
-
-- `temperature = 0.0`：完全确定性，每次生成相同
-- `temperature = 0.5`：较低随机性，风格稳定
-- `temperature = 1.0`：较高随机性，创意更多样
+- `提示词_柴犬.md` → `提示词_柴犬.png`
+- `风景_v1.md` → `风景_v1.png`
 
 ## 常见问题
 
-### 生成速度慢
-
-图像生成通常需要 20-40 秒，请耐心等待。
-
-### 图像质量差
-
-优化提示词，增加更多细节描述：
-
-```
-"一只可爱的柴犬在樱花树下睡觉，水彩风格，柔和的粉色调，春天的氛围，毛发蓬松，细节丰富，4K 分辨率"
-```
-
 ### API 调用失败
 
-检查以下几点：
-1. API Key 是否正确
-2. 是否超出调用频率限制
-3. 提示词是否包含违规内容
+```bash
+✗ 图像生成失败: API key 无效
+是否重试? (y/n, 默认: n):
+```
 
-### 风格不一致
+### 配置文件不存在
 
-使用垫图作为参考，可以有效控制风格一致性。
+```bash
+错误: 找不到配置文件 config/secrets.md
+```
 
-## 贡献
+### 依赖未安装
 
-欢迎提交 Issue 和 Pull Request。
+```bash
+Error: Cannot find module 'node-fetch'
+```
 
 ## 许可证
 
