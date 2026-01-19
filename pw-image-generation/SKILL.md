@@ -43,8 +43,8 @@ mkdir my-image-project && cd my-image-project
 ### Step 3: 复制配置模板（可选）
 
 ```bash
-cp -r ~/.claude/skills/pw-Image-Generation/references ./config
-cp ~/.claude/skills/pw-Image-Generation/references/.gitignore ./.gitignore
+cp -r ~/.claude/skills/pw-Image-Generation/config.example ./config
+cp ~/.claude/skills/pw-Image-Generation/config.example/.gitignore ./.gitignore
 # 编辑 config/secrets.md 自定义 API 密钥（可选）
 ```
 
@@ -52,11 +52,11 @@ cp ~/.claude/skills/pw-Image-Generation/references/.gitignore ./.gitignore
 
 ```bash
 mkdir -p article-images/prompts
-cp ~/.claude/skills/pw-Image-Generation/references/prompt-templates/提示词模板.md ./article-images/prompts/我的提示词.md
+cp ~/.claude/skills/pw-Image-Generation/config.example/prompt-templates/提示词模板.md ./article-images/prompts/我的提示词.md
 vim ./article-images/prompts/我的提示词.md
 ```
 
-参考 `references/style-library.md` 选择合适的风格。
+参考 `config.example/style-library.md` 选择合适的风格。
 
 ### Step 5: 生成图像
 
@@ -122,7 +122,7 @@ my-image-project/
 ├── article-images/
 │   ├── analysis/            # 风格分析（可选）
 │   ├── prompts/             # 提示词文件
-│   ├── references/          # 参考图像
+│   ├── config.example/          # 参考图像
 │   └── images/              # 生成的图像
 └── .gitignore
 ```
@@ -132,7 +132,7 @@ my-image-project/
 ```
 pw-Image-Generation/
 ├── SKILL.md                  # 本文件（核心文档）
-├── references/               # 配置模板和参考资料
+├── config.example/               # 配置模板和参考资料
 │   ├── secrets.md            # API 配置模板
 │   ├── style-library.md      # 风格库（9种预设风格）
 │   └── prompt-templates/
@@ -207,13 +207,13 @@ Skill 提供 9 种预设风格，保证图像风格一致性：
 - 照片写实 (photorealistic) - 高度真实
 - 抽象艺术 (abstract) - 情感表达
 
-查看 `references/style-library.md` 了解每种风格的详细说明和使用场景。
+查看 `config.example/style-library.md` 了解每种风格的详细说明和使用场景。
 
 ---
 
 ## 配置说明
 
-查看 `references/secrets.md` 了解配置选项：
+查看 `config.example/secrets.md` 了解配置选项：
 
 - API_BASE_URL：API 基础 URL
 - ANALYSIS_MODEL_ID：图像分析模型

@@ -10,7 +10,7 @@
  * output/
  * ├── analysis/          # 图像风格分析
  * ├── prompts/           # 提示词文件
- * ├── references/        # 参考图像
+ * ├── config.example/        # 参考图像
  * └── images/            # 生成的图像
  */
 
@@ -224,7 +224,7 @@ async function main() {
       console.error('错误: 未找到提示词文件');
       console.error('');
       console.error('请先创建提示词文件，参考:');
-      console.error('  ~/.claude/skills/pw-image-generation/references/prompt-templates/提示词模板.md');
+      console.error('  ~/.claude/skills/pw-image-generation/config.example/prompt-templates/提示词模板.md');
       console.error('');
       console.error('提示词文件格式:');
       console.error('  ## 提示词');

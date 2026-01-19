@@ -174,14 +174,14 @@ async function main() {
 
     if (!isLocal) {
       const filename = path.basename(imageUrl).split('?')[0] || 'image.png';
-      localImagePath = path.join(outputDir, 'references', '_temp_download.png');
+      localImagePath = path.join(outputDir, 'config.example', '_temp_download.png');
       fs.mkdirSync(path.dirname(localImagePath), { recursive: true });
       console.log('下载图像到:', localImagePath);
       await downloadImage(imageUrl, localImagePath);
     } else {
       localImagePath = imageUrl;
-      // 复制到 references 目录
-      const refPath = path.join(outputDir, 'references', path.basename(imageUrl));
+      // 复制到 config.example 目录
+      const refPath = path.join(outputDir, 'config.example', path.basename(imageUrl));
       fs.mkdirSync(path.dirname(refPath), { recursive: true });
       fs.copyFileSync(imageUrl, refPath);
       localImagePath = refPath;
@@ -215,7 +215,7 @@ ${analysis}
 
     console.log('分析完成!');
     console.log('结果保存到:', outputFile);
-    console.log('参考图像保存在:', path.join(outputDir, 'references', path.basename(imageUrl)));
+    console.log('参考图像保存在:', path.join(outputDir, 'config.example', path.basename(imageUrl)));
 
   } catch (error) {
     console.error('错误:', error.message);

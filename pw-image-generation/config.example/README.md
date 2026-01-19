@@ -5,7 +5,7 @@
 ## 目录结构
 
 ```
-references/
+config.example/
 ├── README.md                 # 本说明文件
 ├── secrets.md                # API 配置模板
 ├── .gitignore                # 项目 gitignore 模板
@@ -20,8 +20,8 @@ references/
 
 ```bash
 # 在项目根目录执行
-cp -r ~/.claude/skills/pw-image-generation/references ./config
-cp ~/.claude/skills/pw-image-generation/references/.gitignore ./.gitignore
+cp -r ~/.claude/skills/pw-image-generation/config.example ./config
+cp ~/.claude/skills/pw-image-generation/config.example/.gitignore ./.gitignore
 ```
 
 ### 配置 API 密钥
