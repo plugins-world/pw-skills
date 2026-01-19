@@ -13,7 +13,7 @@
 
 ```bash
 # 克隆仓库
-git clone <repository-url> ~/.claude/skills
+git clone https://github.com/plugins-world/pw-skills ~/.claude/skills
 
 # 安装 pw-image-generation 依赖
 cd ~/.claude/skills/pw-image-generation && npm install
