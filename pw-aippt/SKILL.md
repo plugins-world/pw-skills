@@ -97,12 +97,32 @@ cp ~/.claude/skills/pw-image-generation/config.example/.gitignore ./.gitignore
 
 ### Step 4: 生成图片
 
+**方式 1: 交互式生成(推荐)**
+
 ```bash
 # 使用 pw-image-generation 的脚本生成图片
-node ~/.claude/skills/pw-image-generation/scripts/generate-image.js
+node ~/.claude/skills/pw-image-generation/scripts/generate-image.js .
 ```
 
-生成的图片会保存到 `images/` 目录，按文件名排序。
+脚本会逐个显示提示词,询问是否生成每张图片:
+- 输入 `y` 确认生成
+- 输入 `n` 跳过
+- 输入 `q` 退出
+
+**方式 2: Claude Code 边确认边生成(自动化)**
+
+在 Claude Code 中,可以使用 AskUserQuestion 工具实现边确认边自动化:
+1. Claude 逐个读取提示词文件
+2. 使用 AskUserQuestion 询问用户是否生成
+3. 用户确认后自动调用 API 生成
+4. 继续下一张
+
+这种方式的优点:
+- 在 Claude Code 界面中完成所有操作
+- 可以随时查看提示词内容
+- 支持批量跳过或停止
+
+生成的图片会保存到 `images/` 目录,按文件名排序。
 
 ### Step 5: 打包 PPTX
 
