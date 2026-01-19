@@ -1,6 +1,6 @@
 ---
 name: pw-aippt
-description: 基于 PPT 模板生成新内容。分析模板风格 → 拆分文章内容 → 生成提示词 → AI 生图 → 打包 PPTX。
+description: 基于 PPT 模板生成新内容。PDF 自动转图片 → 分析模板风格 → 拆分文章内容 → 生成提示词 → AI 生图 → 打包 PPTX。
 ---
 
 # AIPPT - AI PPT 生成工作流
@@ -38,13 +38,33 @@ mkdir -p template prompts images
 
 将现有 PPT 模板导出为图片（垫图）到 `template/` 目录：
 
-**方法 1: PowerPoint 导出**
+**方法 1: 自动转换（推荐）**
+
+如果模板是 PDF 格式，使用脚本自动转换：
+
+```bash
+node ~/.claude/skills/pw-aippt/scripts/pdf-to-images.js <PDF文件> [输出目录] [DPI]
+
+# 示例
+node ~/.claude/skills/pw-aippt/scripts/pdf-to-images.js template.pdf ./template 150
+```
+
+**依赖**: 需要安装 poppler
+```bash
+# Mac
+brew install poppler
+
+# Ubuntu
+apt install poppler-utils
+```
+
+**方法 2: PowerPoint 导出**
 1. 打开 PPT 模板
 2. 文件 → 导出 → 更改文件类型 → PNG
 3. 选择"每张幻灯片"
 4. 保存到 `template/` 目录
 
-**方法 2: Keynote 导出**
+**方法 3: Keynote 导出**
 1. 打开 PPT 模板
 2. 文件 → 导出到 → 图像
 3. 格式选择 PNG，分辨率选择"最佳"
@@ -269,6 +289,23 @@ absolutely no watermark, clean output only
 ```bash
 cd ~/.claude/skills/pw-image-generation && npm install
 ```
+
+### PDF 转图片
+
+将 PDF 格式的 PPT 模板自动转换为图片（垫图）：
+
+```bash
+node ~/.claude/skills/pw-aippt/scripts/pdf-to-images.js <PDF文件> [输出目录] [DPI]
+
+# 示例
+node ~/.claude/skills/pw-aippt/scripts/pdf-to-images.js template.pdf ./template 150
+```
+
+**功能**：
+- 自动转换 PDF 为 PNG 图片
+- 自动重命名为 图.001.png, 图.002.png 格式
+- 可配置 DPI（默认 150，推荐 150-300）
+- 依赖 poppler（Mac: brew install poppler, Ubuntu: apt install poppler-utils）
 
 ### 生成图片
 
