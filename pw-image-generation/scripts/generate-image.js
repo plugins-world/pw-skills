@@ -178,7 +178,15 @@ function readStyleAnalysis(outputDir) {
 
 // 读取提示词文件
 function readPromptFiles(outputDir) {
-  const promptsDir = path.join(outputDir, 'prompts');
+  // 优先从当前目录的 prompts/ 查找
+  let promptsDir = path.join(process.cwd(), 'prompts');
+
+  // 如果不存在，尝试从 outputDir 的父目录查找
+  if (!fs.existsSync(promptsDir) && outputDir) {
+    const parentDir = path.dirname(outputDir);
+    promptsDir = path.join(parentDir, 'prompts');
+  }
+
   if (!fs.existsSync(promptsDir)) {
     return [];
   }
@@ -188,10 +196,32 @@ function readPromptFiles(outputDir) {
 
   return promptFiles.map(file => {
     const content = fs.readFileSync(path.join(promptsDir, file), 'utf8');
-    const match = content.match(/## 提示词\s*\n\s*(.+?)(?:\n|$)/s);
+
+    // 尝试匹配多种格式:
+    // 1. ## 提示词 或 ## 完整提示词 后跟代码块
+    const codeBlockMatch = content.match(/##\s*(?:完整)?提示词\s*\n\s*```[^\n]*\n([\s\S]+?)```/);
+    if (codeBlockMatch) {
+      return {
+        file,
+        prompt: codeBlockMatch[1].trim(),
+        content
+      };
+    }
+
+    // 2. ## 提示词 后直接跟文本
+    const directMatch = content.match(/##\s*提示词\s*\n\s*(.+?)(?:\n\n|$)/s);
+    if (directMatch) {
+      return {
+        file,
+        prompt: directMatch[1].trim(),
+        content
+      };
+    }
+
+    // 3. 兜底: 使用整个文件内容
     return {
       file,
-      prompt: match ? match[1].trim() : content,
+      prompt: content,
       content
     };
   });
