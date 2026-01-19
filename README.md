@@ -32,6 +32,7 @@ cd ~/.claude/skills/pw-image-generation && npm install
 
 注意：API Key 是 ai-router 的密钥，支持多种模型。
 获取 API Key：https://ai-router.plugins-world.cn/console/token
+（需要 GitHub 登录，请确保 GitHub 账号已开放邮箱展示）
 ```
 
 ## 支持的模型
