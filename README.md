@@ -29,11 +29,13 @@ cd ~/.claude/skills/pw-image-generation && npm install
 1. 进入 skill 目录并安装依赖
 2. 配置 ai-router 的 API Key：[你的 API Key]
 3. 创建测试项目并生成一张测试图片
-
-注意：API Key 是 ai-router 的密钥，支持多种模型。
-获取 API Key：https://ai-router.plugins-world.cn/console/token
-（需要 GitHub 登录，请确保 GitHub 账号已开放邮箱展示）
 ```
+
+**获取 API Key**：https://ai-router.plugins-world.cn/console/token
+
+**注意**：
+- API Key 是 ai-router 的密钥，支持多种模型
+- 需要 GitHub 登录，请确保 GitHub 账号已开放邮箱展示
 
 ## 支持的模型
 
