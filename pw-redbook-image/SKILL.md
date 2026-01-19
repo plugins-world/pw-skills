@@ -1,12 +1,12 @@
 ---
 name: pw-redbook-image
-description: RedBook-Image - 小红书风格提示词模板。配合 Image-Generation skill 使用，支持文章拆解和单图生成。
+description: RedBook-Image - 小红书风格提示词模板。配合 pw-image-generation skill 使用，支持文章拆解和单图生成。
 ---
 
 # RedBook-Image - 小红书图生成
 
 > **定位**: 提示词模板扩展
-> **依赖**: Image-Generation skill
+> **依赖**: pw-image-generation skill
 > **核心**: 提供小红书风格的提示词模板（文章拆解/封面图/内容图/结尾图）
 
 ## 什么时候用
@@ -33,7 +33,7 @@ mkdir my-redbook-project && cd my-redbook-project
 mkdir -p prompts
 ```
 
-**注意**: RedBook-Image 不需要安装依赖，所有脚本依赖已在 Image-Generation skill 中全局安装。
+**注意**: RedBook-Image 不需要安装依赖，所有脚本依赖已在 pw-image-generation skill 中全局安装。
 
 #### Step 2: 使用文章拆解模板
 
@@ -52,16 +52,16 @@ skill 会自动：
 3. **直接创建提示词文件**到当前目录的 `prompts/` 下
 4. 文件按序号命名：`01_封面图.md`, `02_内容图_xxx.md`, ...
 
-**提示**: 建议从 Image-Generation 复制 .gitignore 模板到项目目录：
+**提示**: 建议从 pw-image-generation 复制 .gitignore 模板到项目目录：
 ```bash
-cp ~/.claude/skills/Image-Generation/config.example/.gitignore ./.gitignore
+cp ~/.claude/skills/pw-image-generation/config.example/.gitignore ./.gitignore
 ```
 
 #### Step 3: 生成图像
 
 ```bash
-# 使用 Image-Generation 的脚本生成图像
-node ~/.claude/skills/Image-Generation/scripts/generate-image.js
+# 使用 pw-image-generation 的脚本生成图像
+node ~/.claude/skills/pw-image-generation/scripts/generate-image.js
 ```
 
 生成的图片会按文件名排序，发布时按顺序上传即可。
@@ -95,7 +95,7 @@ vim ./prompts/01_封面图.md
 #### Step 3: 生成图像
 
 ```bash
-node ~/.claude/skills/Image-Generation/scripts/generate-image.js
+node ~/.claude/skills/pw-image-generation/scripts/generate-image.js
 ```
 
 ---
@@ -168,10 +168,10 @@ node ~/.claude/skills/Image-Generation/scripts/generate-image.js
 
 ## 工具脚本
 
-所有工具脚本已集成到 Image-Generation skill 中，使用前请确保已安装依赖：
+所有工具脚本已集成到 pw-image-generation skill 中，使用前请确保已安装依赖：
 
 ```bash
-cd ~/.claude/skills/Image-Generation && npm install
+cd ~/.claude/skills/pw-image-generation && npm install
 ```
 
 ### 合并长图
@@ -179,10 +179,10 @@ cd ~/.claude/skills/Image-Generation && npm install
 将系列图片合并为一张长图（垂直拼接）：
 
 ```bash
-node ~/.claude/skills/Image-Generation/scripts/merge-images.js <图片目录> <输出文件>
+node ~/.claude/skills/pw-image-generation/scripts/merge-to-long-image.js <图片目录> <输出文件>
 
 # 示例
-node ~/.claude/skills/Image-Generation/scripts/merge-images.js ./images 长图.png
+node ~/.claude/skills/pw-image-generation/scripts/merge-to-long-image.js ./images 长图.png
 ```
 
 **要求**: 需要安装 ImageMagick
@@ -195,10 +195,10 @@ brew install imagemagick
 将系列图片打包为 PPT 文件（每张图片一页）：
 
 ```bash
-node ~/.claude/skills/Image-Generation/scripts/images2pptx.js <图片目录> <输出文件>
+node ~/.claude/skills/pw-image-generation/scripts/merge-to-pptx.js <图片目录> <输出文件>
 
 # 示例
-node ~/.claude/skills/Image-Generation/scripts/images2pptx.js ./images 小红书配图.pptx
+node ~/.claude/skills/pw-image-generation/scripts/merge-to-pptx.js ./images 小红书配图.pptx
 ```
 
 **功能**：

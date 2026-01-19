@@ -81,10 +81,10 @@ node ~/.claude/skills/pw-Image-Generation/scripts/generate-image.js [输出目�
 将系列图片合并为一张长图（垂直拼接）：
 
 ```bash
-node ~/.claude/skills/pw-Image-Generation/scripts/merge-images.js <图片目录> <输出文件>
+node ~/.claude/skills/pw-Image-Generation/scripts/merge-to-long-image.js <图片目录> <输出文件>
 
 # 示例
-node ~/.claude/skills/pw-Image-Generation/scripts/merge-images.js ./images 长图.png
+node ~/.claude/skills/pw-Image-Generation/scripts/merge-to-long-image.js ./images 长图.png
 ```
 
 **要求**: 需要安装 ImageMagick
@@ -97,10 +97,10 @@ brew install imagemagick
 将系列图片打包为 PPT 文件（每张图片一页）：
 
 ```bash
-node ~/.claude/skills/pw-Image-Generation/scripts/images2pptx.js <图片目录> <输出文件>
+node ~/.claude/skills/pw-Image-Generation/scripts/merge-to-pptx.js <图片目录> <输出文件>
 
 # 示例
-node ~/.claude/skills/pw-Image-Generation/scripts/images2pptx.js ./images 配图.pptx
+node ~/.claude/skills/pw-Image-Generation/scripts/merge-to-pptx.js ./images 配图.pptx
 ```
 
 **功能**:
@@ -140,8 +140,8 @@ pw-Image-Generation/
 ├── scripts/
 │   ├── analyze-image.js      # 分析图像风格
 │   ├── generate-image.js     # 生成图像（支持确认和跳过）
-│   ├── merge-images.js       # 合并长图
-│   └── images2pptx.js        # 打包为 PPT
+│   ├── merge-to-long-image.js       # 合并长图
+│   └── merge-to-pptx.js        # 打包为 PPT
 ├── node_modules/
 ├── package.json
 └── package-lock.json
