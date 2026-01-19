@@ -56,9 +56,9 @@ cp ~/.claude/skills/pw-image-generation/references/.gitignore.template ./.gitign
 ### Step 4: 创建提示词
 
 ```bash
-mkdir -p article-images/prompts
-cp ~/.claude/skills/pw-image-generation/references/prompt-templates/提示词模板.md ./article-images/prompts/我的提示词.md
-vim ./article-images/prompts/我的提示词.md
+mkdir -p prompts
+cp ~/.claude/skills/pw-image-generation/references/prompt-templates/提示词模板.md ./prompts/我的提示词.md
+vim ./prompts/我的提示词.md
 ```
 
 参考 `references/style-library.md` 选择合适的风格。
@@ -163,11 +163,10 @@ node ~/.claude/skills/pw-image-generation/scripts/merge-to-pptx.js ./images 配�
 my-image-project/
 ├── config/
 │   └── secrets.md           # API 配置（可选）
-├── article-images/
-│   ├── analysis/            # 风格分析（可选）
-│   ├── prompts/             # 提示词文件
-│   ├── config.example/          # 参考图像
-│   └── images/              # 生成的图像
+├── template/                # PDF 模板图片
+├── prompts/                 # 提示词文件
+├── analysis/                # 风格分析（可选）
+├── images/                  # 生成的图像
 └── .gitignore
 ```
 

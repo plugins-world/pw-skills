@@ -15,6 +15,7 @@ import fs from 'fs';
 import path from 'path';
 import https from 'https';
 import http from 'http';
+import fetch from 'node-fetch';
 
 // 读取配置（支持默认配置）
 function loadConfig() {
@@ -87,7 +88,6 @@ function downloadImage(url, outputPath) {
 
 // 调用 API 分析图像
 async function analyzeImage(imagePath, config) {
-  const fetch = require('node-fetch');
 
   // 读���图像并转换为 base64
   const imageBuffer = fs.readFileSync(imagePath);

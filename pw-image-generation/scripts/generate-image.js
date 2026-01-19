@@ -7,16 +7,15 @@
  * node scripts/generate-image.js [输出目录]
  *
  * 输出目录结构：
- * output/
- * ├── analysis/          # 图像风格分析
- * ├── prompts/           # 提示词文件
- * ├── config.example/        # 参考图像
- * └── images/            # 生成的图像
+ * images/                # 生成的图像 (默认)
+ * prompts/               # 提示词文件
+ * analysis/              # 图像风格分析
  */
 
 import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
+import fetch from 'node-fetch';
 
 // 创建 readline 接口用于用户交互
 const rl = readline.createInterface({
@@ -82,8 +81,6 @@ function askUser(question) {
 
 // 调用 API 生成图像
 async function generateImage(prompt, referenceImagePath, config) {
-  const fetch = require('node-fetch');
-
   const requestBody = {
     contents: [
       {
@@ -191,7 +188,7 @@ function readPromptFiles(outputDir) {
 
 // 主函数
 async function main() {
-  const outputDir = process.argv[2] || path.join(process.cwd(), 'article-images');
+  const outputDir = process.argv[2] || path.join(process.cwd(), 'images');
 
   if (!fs.existsSync(outputDir)) {
     console.warn('警告: 输出目录不存在，将创建:', outputDir);
@@ -203,9 +200,8 @@ async function main() {
     console.log('加载配置...');
     const config = loadConfig();
 
-    // 创建子目录
-    const imagesDir = path.join(outputDir, 'images');
-    fs.mkdirSync(imagesDir, { recursive: true });
+    // 图片直接保存在输出目录
+    const imagesDir = outputDir;
 
     // 读取风格分析
     console.log('\n读取风格分析...');
