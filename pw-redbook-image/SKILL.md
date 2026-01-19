@@ -245,5 +245,5 @@ node ~/.claude/skills/pw-image-generation/scripts/merge-to-pptx.js ./images 小�
 
 **要求**：需要安装 pptxgenjs（首次使用）
 ```bash
-cd ~/.claude/skills/AIPPT-Enterprise && npm install pptxgenjs
+cd ~/.claude/skills/pw-image-generation && npm install
 ```

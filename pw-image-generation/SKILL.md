@@ -1,6 +1,6 @@
 ---
 name: pw-image-gen
-description: AI 图像生成工作流。支持文生图、图生图、批量生成、合并长图、生成 PPT。
+description: AI 图像生成工作流。支持文生图、图生图、批量生成、图床上传/删除、合并长图、生成 PPT。
 ---
 
 # Image-Generation - AI 图像生成工作流
@@ -36,7 +36,7 @@ description: AI 图像生成工作流。支持文生图、图生图、批量生�
 ### Step 1: 安装 Skill 依赖
 
 ```bash
-cd ~/.claude/skills/pw-Image-Generation && npm install
+cd ~/.claude/skills/pw-image-generation && npm install
 ```
 
 ### Step 2: 创建项目目录
@@ -48,8 +48,8 @@ mkdir my-image-project && cd my-image-project
 ### Step 3: 复制配置模板（可选）
 
 ```bash
-cp -r ~/.claude/skills/pw-Image-Generation/config.example ./config
-cp ~/.claude/skills/pw-Image-Generation/config.example/.gitignore ./.gitignore
+cp -r ~/.claude/skills/pw-image-generation/config.example ./config
+cp ~/.claude/skills/pw-image-generation/references/.gitignore.template ./.gitignore
 # 编辑 config/secrets.md 自定义 API 密钥（可选）
 ```
 
@@ -57,11 +57,11 @@ cp ~/.claude/skills/pw-Image-Generation/config.example/.gitignore ./.gitignore
 
 ```bash
 mkdir -p article-images/prompts
-cp ~/.claude/skills/pw-Image-Generation/config.example/prompt-templates/提示词模板.md ./article-images/prompts/我的提示词.md
+cp ~/.claude/skills/pw-image-generation/references/prompt-templates/提示词模板.md ./article-images/prompts/我的提示词.md
 vim ./article-images/prompts/我的提示词.md
 ```
 
-参考 `config.example/style-library.md` 选择合适的风格。
+参考 `references/style-library.md` 选择合适的风格。
 
 ### Step 5: 生成图像
 
@@ -78,18 +78,57 @@ node ~/.claude/skills/Image-Generation/scripts/generate-image.js
 ### 生成图像
 
 ```bash
-node ~/.claude/skills/pw-Image-Generation/scripts/generate-image.js [输出目录]
+node ~/.claude/skills/pw-image-generation/scripts/generate-image.js [输出目录]
 ```
+
+### 上传图片到图床
+
+将本地图片上传到图床获取 URL（用于图生图）：
+
+```bash
+node ~/.claude/skills/pw-image-generation/scripts/upload-image.js <图片路径>
+
+# 示例
+node ~/.claude/skills/pw-image-generation/scripts/upload-image.js ./template/图.001.png
+```
+
+**功能**:
+- 自动上传到 freeimage.host（永久存储）
+- 返回可用的图片 URL
+- 自动保存删除链接到 `.upload-history.json`
+- 用于图生图的垫图上传
+
+### 管理图床图片
+
+查看和删除已上传的图片：
+
+```bash
+# 列出所有上传的图片
+node ~/.claude/skills/pw-image-generation/scripts/delete-image.js list
+
+# 删除指定索引的图片
+node ~/.claude/skills/pw-image-generation/scripts/delete-image.js delete 0
+
+# 删除所有图片
+node ~/.claude/skills/pw-image-generation/scripts/delete-image.js delete-all
+```
+
+**功能**:
+- 查看上传历史和删除链接
+- 单个或批量删除图片
+- 自动更新历史记录
+
+详细说明见 `references/图床上传.md`
 
 ### 合并长图
 
 将系列图片合并为一张长图（垂直拼接）：
 
 ```bash
-node ~/.claude/skills/pw-Image-Generation/scripts/merge-to-long-image.js <图片目录> <输出文件>
+node ~/.claude/skills/pw-image-generation/scripts/merge-to-long-image.js <图片目录> <输出文件>
 
 # 示例
-node ~/.claude/skills/pw-Image-Generation/scripts/merge-to-long-image.js ./images 长图.png
+node ~/.claude/skills/pw-image-generation/scripts/merge-to-long-image.js ./images 长图.png
 ```
 
 **要求**: 需要安装 ImageMagick
@@ -102,10 +141,10 @@ brew install imagemagick
 将系列图片打包为 PPT 文件（每张图片一页）：
 
 ```bash
-node ~/.claude/skills/pw-Image-Generation/scripts/merge-to-pptx.js <图片目录> <输出文件>
+node ~/.claude/skills/pw-image-generation/scripts/merge-to-pptx.js <图片目录> <输出文件>
 
 # 示例
-node ~/.claude/skills/pw-Image-Generation/scripts/merge-to-pptx.js ./images 配图.pptx
+node ~/.claude/skills/pw-image-generation/scripts/merge-to-pptx.js ./images 配图.pptx
 ```
 
 **功能**:
@@ -135,16 +174,22 @@ my-image-project/
 ### Skill 目录结构
 
 ```
-pw-Image-Generation/
+pw-image-generation/
 ├── SKILL.md                  # 本文件（核心文档）
-├── config.example/               # 配置模板和参考资料
-│   ├── secrets.md            # API 配置模板
+├── config.example/           # 配置模板
+│   ├── README.md             # 配置说明
+│   └── secrets.md            # API 配置模板
+├── references/               # 参考文档
+│   ├── .gitignore.template   # Git 忽略文件模板
+│   ├── 图床上传.md           # 图床上传指南
 │   ├── style-library.md      # 风格库（9种预设风格）
 │   └── prompt-templates/
-│       └── 提示词模板.md      # 提示词模板
+│       └── 提示词模板.md     # 提示词模板
 ├── scripts/
 │   ├── analyze-image.js      # 分析图像风格
 │   ├── generate-image.js     # 生成图像（支持确认和跳过）
+│   ├── upload-image.js       # 上传图片到图床
+│   ├── delete-image.js       # 管理和删除图床图片
 │   ├── merge-to-long-image.js       # 合并长图
 │   └── merge-to-pptx.js        # 打包为 PPT
 ├── node_modules/
@@ -173,7 +218,7 @@ pw-Image-Generation/
 依赖安装在 skill 目录，不是项目目录：
 
 ```bash
-cd ~/.claude/skills/pw-Image-Generation && npm install
+cd ~/.claude/skills/pw-image-generation && npm install
 ```
 
 ---
@@ -184,16 +229,16 @@ cd ~/.claude/skills/pw-Image-Generation && npm install
 
 ```bash
 # 从 URL 分析
-node ~/.claude/skills/pw-Image-Generation/scripts/analyze-image.js <图像URL>
+node ~/.claude/skills/pw-image-generation/scripts/analyze-image.js <图像URL>
 
 # 从本地文件分析
-node ~/.claude/skills/pw-Image-Generation/scripts/analyze-image.js <本地路径>
+node ~/.claude/skills/pw-image-generation/scripts/analyze-image.js <本地路径>
 ```
 
 ### 生成图像
 
 ```bash
-node ~/.claude/skills/pw-Image-Generation/scripts/generate-image.js [输出目录]
+node ~/.claude/skills/pw-image-generation/scripts/generate-image.js [输出目录]
 ```
 
 ---
@@ -212,7 +257,7 @@ Skill 提供 9 种预设风格，保证图像风格一致性：
 - 照片写实 (photorealistic) - 高度真实
 - 抽象艺术 (abstract) - 情感表达
 
-查看 `config.example/style-library.md` 了解每种风格的详细说明和使用场景。
+查看 `references/style-library.md` 了解每种风格的详细说明和使用场景。
 
 ---
 

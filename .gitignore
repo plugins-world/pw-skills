@@ -1,4 +1,8 @@
 *
+!pw-image-generation/
 !pw-image-generation/**
+!pw-redbook-image/
 !pw-redbook-image/**
+!pw-aippt/
+!pw-aippt/**
 !task.md
