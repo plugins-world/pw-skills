@@ -44,107 +44,102 @@ function saveHistory(history) {
   fs.writeFileSync(historyFile, JSON.stringify(history, null, 2), 'utf-8');
 }
 
+// 上传到 sm.ms
+function uploadToSmMs(imagePath) {
+  console.log('尝试上传到 sm.ms...');
+  try {
+    const cmd = `curl -s -X POST -F "smfile=@${imagePath}" https://sm.ms/api/v2/upload`;
+    const result = execSync(cmd, { encoding: 'utf-8' });
+    const json = JSON.parse(result);
+
+    if (json.success && json.data && json.data.url) {
+      return {
+        success: true,
+        url: json.data.url,
+        deleteHash: json.data.hash || null,
+        deleteUrl: json.data.delete ? `https://sm.ms/delete/${json.data.hash}` : null,
+        provider: 'sm.ms'
+      };
+    } else if (json.code === 'image_repeated' && json.images) {
+      // 图片已存在，返回已有的 URL
+      return {
+        success: true,
+        url: json.images,
+        deleteHash: null,
+        deleteUrl: null,
+        provider: 'sm.ms',
+        note: '图片已存在'
+      };
+    } else {
+      return { success: false, error: json.message || '未知错误' };
+    }
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
 // 上传到 freeimage.host
+function uploadToFreeimage(imagePath) {
+  console.log('尝试上传到 freeimage.host...');
+  try {
+    const cmd = `curl -s -X POST -F "source=@${imagePath}" "https://freeimage.host/api/1/upload?key=6d207e02198a847aa98d0a2a901485a5"`;
+    const result = execSync(cmd, { encoding: 'utf-8' });
+    const json = JSON.parse(result);
+
+    if (json.status_code === 200 && json.image && json.image.url) {
+      return {
+        success: true,
+        url: json.image.url,
+        deleteUrl: json.image.url_viewer || null,
+        provider: 'freeimage.host'
+      };
+    } else {
+      return { success: false, error: json.error || '未知错误' };
+    }
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
+// 主逻辑：优先 sm.ms，失败则尝试 freeimage.host
 console.log(`正在上传: ${imagePath}`);
 
-/**
- * API 响应数据结构:
- * {
- *   status_code: 200,
- *   success: { message: 'image uploaded', code: 200 },
- *   image: {
- *     name: 'example-image',
- *     extension: 'png',
- *     width: 4001,
- *     height: 2251,
- *     size: 2841851,
- *     time: 1768822789,
- *     expiration: 0,
- *     likes: 0,
- *     description: null,
- *     original_filename: 'example-image.png',
- *     is_animated: 0,
- *     id_encoded: 'xxxxx',
- *     extension_name: 'png',
- *     size_formatted: '2.8 MB',
- *     filename: 'xxxxx.png',
- *     url: 'https://iili.io/xxxxx.png',
- *     url_short: 'https://freeimage.host/i/xxxxx',
- *     url_seo: 'https://freeimage.host/i/example-image.xxxxx',
- *     url_viewer: 'https://freeimage.host/i/xxxxx',
- *     url_viewer_preview: 'https://freeimage.host/i/xxxxx',
- *     url_viewer_thumb: 'https://freeimage.host/i/xxxxx',
- *     image: {
- *       filename: 'xxxxx.png',
- *       name: 'xxxxx',
- *       mime: 'image/png',
- *       extension: 'png',
- *       url: 'https://iili.io/xxxxx.png',
- *       size: 2841851
- *     },
- *     thumb: {
- *       filename: 'xxxxx.th.png',
- *       name: 'xxxxx.th',
- *       mime: 'image/png',
- *       extension: 'png',
- *       url: 'https://iili.io/xxxxx.th.png'
- *     },
- *     medium: {
- *       filename: 'xxxxx.md.png',
- *       name: 'xxxxx.md',
- *       mime: 'image/png',
- *       extension: 'png',
- *       url: 'https://iili.io/xxxxx.md.png'
- *     },
- *     display_url: 'https://iili.io/xxxxx.md.png',
- *     display_width: 4001,
- *     display_height: 2251,
- *     views_label: 'views',
- *     likes_label: 'likes',
- *     how_long_ago: '7 minutes ago',
- *     date_fixed_peer: '2026-01-19 11:39:49',
- *     title: 'example-image',
- *     title_truncated: 'example-image',
- *     title_truncated_html: 'example-image',
- *     is_use_loader: false
- *   },
- *   status_txt: 'OK'
- * }
- */
-try {
-  const cmd = `curl -s -X POST -F "source=@${imagePath}" "https://freeimage.host/api/1/upload?key=6d207e02198a847aa98d0a2a901485a5"`;
-  const result = execSync(cmd, { encoding: 'utf-8' });
+let result = uploadToSmMs(imagePath);
 
-  const json = JSON.parse(result);
+if (!result.success) {
+  console.log(`sm.ms 上传失败: ${result.error}`);
+  result = uploadToFreeimage(imagePath);
+}
 
-  if (json.status_code === 200 && json.image && json.image.url) {
-    const url = json.image.url;
-    const deleteUrl = json.image.url_viewer || null;
-
-    console.log("json", json);
-    console.log(`\n✅ 上传成功: ${url}`);
-    console.log(`\n可以在提示词中使用:\n${url} 参考这张图片...`);
-
-    // 保存到历史记录
-    const history = loadHistory();
-    history.push({
-      timestamp: new Date().toISOString(),
-      file: path.basename(imagePath),
-      url: url,
-      deleteUrl: deleteUrl
-    });
-    saveHistory(history);
-
-    console.log(`\n📝 删除链接已保存到: ${historyFile}`);
-    if (deleteUrl) {
-      console.log(`   删除链接: ${deleteUrl}`);
-    }
-    console.log(`\n💡 提示: 使用 delete-image.js 可以批量删除图片`);
-  } else {
-    console.error('上传失败:', json);
-    process.exit(1);
+if (result.success) {
+  console.log(`\n✅ 上传成功 (${result.provider}): ${result.url}`);
+  if (result.note) {
+    console.log(`   注意: ${result.note}`);
   }
-} catch (err) {
-  console.error('上传失败:', err.message);
+  console.log(`\n可以在提示词中使用:\n${result.url} 参考这张图片...`);
+
+  // 保存到历史记录
+  const history = loadHistory();
+  history.push({
+    timestamp: new Date().toISOString(),
+    file: path.basename(imagePath),
+    url: result.url,
+    deleteUrl: result.deleteUrl || null,
+    deleteHash: result.deleteHash || null,
+    provider: result.provider
+  });
+  saveHistory(history);
+
+  console.log(`\n📝 删除链接已保存到: ${historyFile}`);
+  if (result.deleteUrl) {
+    console.log(`   删除链接: ${result.deleteUrl}`);
+  }
+  if (result.deleteHash) {
+    console.log(`   删除 Hash: ${result.deleteHash}`);
+  }
+  console.log(`\n💡 提示: 使用 delete-image.js 可以批量删除图片`);
+} else {
+  console.error(`\n❌ 所有图床上传失败`);
+  console.error(`   最后错误: ${result.error}`);
   process.exit(1);
 }
