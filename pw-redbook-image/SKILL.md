@@ -1,6 +1,6 @@
 ---
 name: pw-redbook-image
-description: RedBook-Image - 小红书风格提示词模板。配合 pw-image-generation skill 使用，支持文章拆解和单图生成。
+description: 小红书风格图片生成。将文章拆解为系列配图，支持封面图、内容图、结尾图。
 ---
 
 # RedBook-Image - 小红书图生成
@@ -11,8 +11,8 @@ description: RedBook-Image - 小红书风格提示词模板。配合 pw-image-ge
 
 ## 什么时候用
 
-- 需要将文章/笔记拆解为小红书系列图（推荐使用文章拆解模板）
-- 制作小红书风格的信息图
+- 将文章/笔记拆解为小红书系列图（2-10 张）
+- 制作小红书风格的信息图（竖版、卡通手绘、莫兰迪色系）
 - 生成单张封面图、内容图、结尾图
 
 ---
