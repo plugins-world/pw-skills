@@ -84,9 +84,9 @@ mkdir -p prompts
 ```bash
 # 将小红书提示词模板复制到项目的 prompts 目录
 # 注意文件命名包含序号，确保顺序正确
-cp ~/.claude/skills/RedBook-Image/prompt-templates/封面图模板.md ./prompts/01_封面图.md
-cp ~/.claude/skills/RedBook-Image/prompt-templates/内容图模板.md ./prompts/02_内容图_观点1.md
-cp ~/.claude/skills/RedBook-Image/prompt-templates/结尾图模板.md ./prompts/09_结尾图.md
+cp ~/.claude/skills/pw-RedBook-Image/references/封面图模板.md ./prompts/01_封面图.md
+cp ~/.claude/skills/pw-RedBook-Image/references/内容图模板.md ./prompts/02_内容图_观点1.md
+cp ~/.claude/skills/pw-RedBook-Image/references/结尾图模板.md ./prompts/09_结尾图.md
 
 # 编辑提示词
 vim ./prompts/01_封面图.md
