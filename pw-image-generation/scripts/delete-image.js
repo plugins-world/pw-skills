@@ -10,7 +10,6 @@
 
 import fs from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
 
 const historyFile = path.join(process.cwd(), '.upload-history.json');
 
@@ -32,19 +31,6 @@ function saveHistory(history) {
   fs.writeFileSync(historyFile, JSON.stringify(history, null, 2), 'utf-8');
 }
 
-// 删除图片
-function deleteImage(deleteUrl) {
-  try {
-    console.log(`正在删除: ${deleteUrl}`);
-    execSync(`curl -s "${deleteUrl}"`, { encoding: 'utf-8' });
-    console.log('✅ 删除成功');
-    return true;
-  } catch (err) {
-    console.error('❌ 删除失败:', err.message);
-    return false;
-  }
-}
-
 // 列出所有图片
 function listImages() {
   const history = loadHistory();
@@ -60,12 +46,14 @@ function listImages() {
     const date = new Date(item.timestamp).toLocaleString('zh-CN');
     console.log(`[${index}] ${item.file}`);
     console.log(`    上传时间: ${date}`);
+    console.log(`    图床: ${item.provider || '未知'}`);
     console.log(`    图片 URL: ${item.url}`);
     console.log(`    删除链接: ${item.deleteUrl || '无'}`);
     console.log('');
   });
 
   console.log(`历史记录文件: ${historyFile}`);
+  console.log(`\n💡 提示: 访问删除链接在浏览器中手动删除图片`);
 }
 
 // 删除指定图片
@@ -84,15 +72,16 @@ function deleteByIndex(index) {
     process.exit(1);
   }
 
-  console.log(`准备删除: ${item.file}`);
+  console.log(`准备从历史记录中移除: ${item.file}`);
+  console.log(`图床: ${item.provider || '未知'}`);
   console.log(`图片 URL: ${item.url}`);
+  console.log(`删除链接: ${item.deleteUrl}`);
+  console.log(`\n⚠️  请手动访问删除链接删除图片`);
 
-  if (deleteImage(item.deleteUrl)) {
-    // 从历史记录中移除
-    history.splice(index, 1);
-    saveHistory(history);
-    console.log('已从历史记录中移除');
-  }
+  // 从历史记录中移除
+  history.splice(index, 1);
+  saveHistory(history);
+  console.log('✅ 已从历史记录中移除');
 }
 
 // 删除所有图片
@@ -104,35 +93,19 @@ function deleteAll() {
     return;
   }
 
-  console.log(`准备删除 ${history.length} 张图片...\n`);
+  console.log(`准备从历史记录中移除 ${history.length} 张图片...\n`);
 
-  let successCount = 0;
-  let failCount = 0;
+  history.forEach((item, index) => {
+    console.log(`[${index}] ${item.file}`);
+    console.log(`    图床: ${item.provider || '未知'}`);
+    console.log(`    删除链接: ${item.deleteUrl || '无'}`);
+  });
 
-  for (let i = history.length - 1; i >= 0; i--) {
-    const item = history[i];
-    console.log(`[${i}] ${item.file}`);
+  console.log(`\n⚠️  请手动访问删除链接删除图片`);
+  console.log(`\n清空历史记录...`);
 
-    if (!item.deleteUrl) {
-      console.log('⚠️  跳过: 没有删除链接\n');
-      failCount++;
-      continue;
-    }
-
-    if (deleteImage(item.deleteUrl)) {
-      history.splice(i, 1);
-      successCount++;
-    } else {
-      failCount++;
-    }
-    console.log('');
-  }
-
-  saveHistory(history);
-
-  console.log(`\n删除完成:`);
-  console.log(`  成功: ${successCount} 张`);
-  console.log(`  失败: ${failCount} 张`);
+  saveHistory([]);
+  console.log(`✅ 已清空历史记录 (${history.length} 条)`);
 }
 
 // 主函数
