@@ -34,6 +34,7 @@ GENERATION_ENDPOINT=/v1beta/models/{model}:generateContent
 ## 认证配置
 
 # AI Router API 密钥（支持多种模型，不局限于特定平台）
+# 获取地址：https://ai-router.plugins-world.cn/console/token
 API_KEY=your-ai-router-api-key-here
 
 ## 图床配置（可选）
