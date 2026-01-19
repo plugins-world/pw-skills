@@ -6,9 +6,9 @@
  * 示例: node upload-image.js ./template/图.001.png
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
 
 // 参数解析
 const args = process.argv.slice(2);

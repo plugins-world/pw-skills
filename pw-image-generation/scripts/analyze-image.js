@@ -11,10 +11,10 @@
  * node scripts/analyze-image.js ./local-image.png ./output
  */
 
-const fs = require('fs');
-const path = require('path');
-const https = require('https');
-const http = require('http');
+import fs from 'fs';
+import path from 'path';
+import https from 'https';
+import http from 'http';
 
 // 读取配置（支持默认配置）
 function loadConfig() {

@@ -8,9 +8,9 @@
  * 依赖: poppler (Mac: brew install poppler, Ubuntu: apt install poppler-utils)
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
 
 // 参数解析
 const args = process.argv.slice(2);

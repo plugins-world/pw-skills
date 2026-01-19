@@ -14,9 +14,9 @@
  * └── images/            # 生成的图像
  */
 
-const fs = require('fs');
-const path = require('path');
-const readline = require('readline');
+import fs from 'fs';
+import path from 'path';
+import readline from 'readline';
 
 // 创建 readline 接口用于用户交互
 const rl = readline.createInterface({
