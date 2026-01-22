@@ -6,6 +6,7 @@
 
 - **pw-image-generation**: AI 图像生成工作流（文生图、图生图、批量生成）
 - **pw-redbook-image**: 小红书风格提示词模板
+- **pw-embedded-c-style**: 嵌入式 C 代码风格助手（创建项目、优化代码）
 
 查看各技能的 SKILL.md 了解详细使用方法。
 

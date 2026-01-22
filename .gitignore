@@ -9,3 +9,6 @@
 
 !pw-aippt-old/
 !pw-aippt-old/**
+
+!pw-embedded-c-style/
+!pw-embedded-c-style/**
