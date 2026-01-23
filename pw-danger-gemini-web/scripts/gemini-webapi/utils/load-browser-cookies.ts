@@ -314,13 +314,14 @@ async function fetch_google_cookies_via_cdp(
 
           if (isLoggedIn) {
             if (verbose) {
-              logger.success('Login verified! Authentication successful! Browser will close in 3 seconds...');
+              logger.success('Login verified! Authentication successful! Browser will close in 5 seconds...');
+              logger.info('Waiting for cookies to fully propagate...');
             }
-            await sleep(3000);
+            await sleep(5000);
             return m;
           } else {
             if (verbose) {
-              logger.warning('Detected cookies are from a logged-out session. Please log in in the browser.');
+              logger.info('Detected intermediate login page. Waiting for login to complete...');
             }
             lastCookieHash = '';
             cookieDetectedCount = 0;
@@ -328,9 +329,10 @@ async function fetch_google_cookies_via_cdp(
         } else if (currentHash !== lastCookieHash) {
           // Cookies changed, user just logged in
           if (verbose) {
-            logger.success('New cookies detected! Authentication successful! Browser will close in 3 seconds...');
+            logger.success('New cookies detected! Authentication successful! Browser will close in 5 seconds...');
+            logger.info('Waiting for cookies to fully propagate...');
           }
-          await sleep(3000);
+          await sleep(5000);
           return m;
         } else {
           // Same cookies, increment counter
@@ -339,9 +341,10 @@ async function fetch_google_cookies_via_cdp(
           // After detecting the same cookies 3 times (6 seconds), verify and return
           if (cookieDetectedCount >= 3) {
             if (verbose) {
-              logger.success('Cookies confirmed. Authentication successful! Browser will close in 3 seconds...');
+              logger.success('Cookies confirmed. Authentication successful! Browser will close in 5 seconds...');
+              logger.info('Waiting for cookies to fully propagate...');
             }
-            await sleep(3000);
+            await sleep(5000);
             return m;
           }
         }
@@ -360,23 +363,70 @@ async function fetch_google_cookies_via_cdp(
       await sleep(2000);
     }
   } finally {
+    if (verbose) {
+      logger.debug('Closing browser...');
+    }
+
     if (cdp) {
       try {
         await cdp.send('Browser.close', {}, { timeoutMs: 5_000 });
-      } catch {}
+        if (verbose) {
+          logger.debug('Browser.close command sent successfully');
+        }
+      } catch (e) {
+        if (verbose) {
+          logger.debug(`Browser.close failed: ${e instanceof Error ? e.message : String(e)}`);
+        }
+      }
       cdp.close();
     }
 
-    try {
-      chrome.kill('SIGTERM');
-    } catch {}
-    setTimeout(() => {
-      if (!chrome.killed) {
-        try {
-          chrome.kill('SIGKILL');
-        } catch {}
+    // Kill Chrome process and wait for it to exit
+    const killPromise = new Promise<void>((resolve) => {
+      chrome.once('exit', () => {
+        if (verbose) {
+          logger.debug('Chrome process exited');
+        }
+        resolve();
+      });
+
+      // Send SIGTERM first
+      try {
+        chrome.kill('SIGTERM');
+        if (verbose) {
+          logger.debug('Sent SIGTERM to Chrome process');
+        }
+      } catch (e) {
+        if (verbose) {
+          logger.debug(`Failed to send SIGTERM: ${e instanceof Error ? e.message : String(e)}`);
+        }
+        resolve(); // If kill fails, resolve immediately
       }
-    }, 2_000).unref?.();
+
+      // Force kill after 2 seconds if still running
+      setTimeout(() => {
+        if (!chrome.killed) {
+          try {
+            chrome.kill('SIGKILL');
+            if (verbose) {
+              logger.debug('Sent SIGKILL to Chrome process');
+            }
+          } catch (e) {
+            if (verbose) {
+              logger.debug(`Failed to send SIGKILL: ${e instanceof Error ? e.message : String(e)}`);
+            }
+          }
+        }
+        // Resolve after SIGKILL attempt regardless
+        setTimeout(() => resolve(), 500);
+      }, 2_000);
+    });
+
+    await killPromise;
+
+    if (verbose) {
+      logger.debug('Browser cleanup completed');
+    }
   }
 }
 

@@ -399,7 +399,7 @@ async function main(): Promise<void> {
   if (args.login) {
     process.env.GEMINI_WEB_LOGIN = '1';
     const c = new GeminiClient();
-    await c.init({ verbose: true });
+    await c.init({ verbose: true, auto_refresh: false });
     await c.close();
     if (!args.json) console.log(`Cookie refreshed: ${cookiePath}`);
     else console.log(JSON.stringify({ ok: true, cookiePath }, null, 2));
