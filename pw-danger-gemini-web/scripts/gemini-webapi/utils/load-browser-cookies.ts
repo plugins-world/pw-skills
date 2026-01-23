@@ -198,6 +198,15 @@ async function verify_login_status_via_html(
   verbose: boolean,
 ): Promise<boolean> {
   try {
+    // Get page URL
+    const urlResult = await cdp.send<{ result: { value: string } }>(
+      'Runtime.evaluate',
+      { expression: 'window.location.href' },
+      { sessionId, timeoutMs: 5_000 },
+    );
+    const url = urlResult.result.value;
+
+    // Get page HTML
     const pageContent = await cdp.send<{ result: { value: string } }>(
       'Runtime.evaluate',
       { expression: 'document.body.innerHTML' },
@@ -205,15 +214,30 @@ async function verify_login_status_via_html(
     );
 
     const html = pageContent.result.value;
+
+    // Check for confirmation/intermediate pages
+    const isConfirmationPage =
+      url.includes('accounts.google.com') ||
+      html.includes('继续') ||
+      html.includes('确认') ||
+      html.includes('Continue') ||
+      html.includes('Confirm') ||
+      html.includes('ServiceLogin') ||
+      html.includes('signin/v2/challenge');
+
     // Check for user account indicators (email address or account menu)
-    // Logged in: contains email with @ symbol and account-related elements
-    // Not logged in: contains sign-in related elements
     const hasEmail = /@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(html);
     const hasAccountMenu = html.includes('aria-label="Google 账号') || html.includes('aria-label="Google Account');
-    const isLoggedIn = (hasEmail || hasAccountMenu) && !html.includes('accounts.google.com/ServiceLogin');
 
-    if (verbose && !isLoggedIn) {
-      logger.debug('HTML check: User not logged in or session expired');
+    // Only consider logged in if we have account indicators AND not on a confirmation page
+    const isLoggedIn = (hasEmail || hasAccountMenu) && !isConfirmationPage;
+
+    if (verbose) {
+      if (isConfirmationPage) {
+        logger.debug('Detected confirmation/intermediate page. Waiting for login completion...');
+      } else if (!isLoggedIn) {
+        logger.debug('HTML check: User not logged in or session expired');
+      }
     }
 
     return isLoggedIn;
