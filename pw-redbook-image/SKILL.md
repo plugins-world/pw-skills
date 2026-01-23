@@ -3,41 +3,22 @@ name: pw-redbook-image
 description: 小红书风格图片生成。将文章拆解为系列配图，支持封面图、内容图、结尾图。
 ---
 
-# RedBook-Image - 小红书图生成
+# 小红书图片生成
 
-> **定位**: 提示词模板扩展
-> **依赖**: pw-image-generation skill
-> **核心**: 提供小红书风格的提示词模板（文章拆解/封面图/内容图/结尾图）
+将文章拆解为小红书风格的系列配图。
 
-## 快速开始
-
-### 1. 准备项目
+## 使用方法
 
 ```bash
-mkdir my-redbook-project && cd my-redbook-project
-mkdir -p prompts
-```
-
-### 2. 生成提示词
-
-```bash
-# 在 Claude Code 中执行
+# 从 URL 生成
 /pw-redbook-image https://example.com/article
-# 或
+
+# 从文本内容生成
 /pw-redbook-image "文章内容..."
+
+# 从 markdown 文件生成
+/pw-redbook-image path/to/article.md
 ```
-
-skill 会自动拆解文章，生成提示词文件到 `prompts/` 目录。
-
-### 3. 生成图片
-
-```bash
-node ~/.claude/skills/pw-image-generation/scripts/generate-image.js
-```
-
-生成的图片保存到 `images/` 目录，按文件名排序。
-
----
 
 ## 小红书风格特征
 
@@ -48,26 +29,7 @@ node ~/.claude/skills/pw-image-generation/scripts/generate-image.js
 - **装饰**: 卡通元素、emoji 图标、手绘贴纸、对话气泡
 - **排版**: 信息精简，多留白，要点分条呈现
 
----
-
-## 核心原则
-
-### 视觉一致性（重要）
-
-系列图最常见的问题是风格不一致。必须保持一致的要素：
-
-1. **插画风格**: 所有图片使用相同的插画风格（扁平化/手绘/卡通）
-2. **配色方案**: 使用相同的 3-5 种主色调
-3. **装饰元素**: 使用相同类型的装饰
-4. **字体样式**: 标题和正文字体保持一致
-5. **作者信息**: 所有图片右下角统一格式（位置、大小、颜色）
-
-**实现方法**:
-- 在第一张图的提示词中详细描述风格
-- 后续图片明确要求"保持与第一张图相同的风格"
-- 使用相同的风格关键词
-
-### 内容拆解
+## 内容拆解原则
 
 - **封面图**: 强烈视觉冲击力，包含核心标题
 - **内容图**: 每张聚焦 1 个核心观点
@@ -78,42 +40,144 @@ node ~/.claude/skills/pw-image-generation/scripts/generate-image.js
 - 中等复杂度: 4-6 张
 - 深度干货: 7-10 张
 
-**文件命名**: 使用序号前缀，如 `01_封面图.md`, `02_内容图_xxx.md`
+## 文件管理
 
----
+### 输出目录
 
-## 工具脚本
+每个会话创建一个以主题命名的独立目录:
 
-### 合并长图
-
-```bash
-node ~/.claude/skills/pw-image-generation/scripts/merge-to-long-image.js ./images 长图.png
+```
+redbook-{topic-slug}/
+├── source.md              # 源文章
+├── prompts/               # 提示词文件
+│   ├── 01_封面图.md
+│   ├── 02_内容图_核心观点1.md
+│   ├── 03_内容图_核心观点2.md
+│   └── 04_结尾图.md
+└── images/                # 生成的图片
+    ├── 01_封面图.png
+    ├── 02_内容图_核心观点1.png
+    ├── 03_内容图_核心观点2.png
+    └── 04_结尾图.png
 ```
 
-需要安装 ImageMagick: `brew install imagemagick`
+**主题命名规则**:
+1. 从文章标题/内容中提取主题（2-4 个词，kebab-case）
+2. 示例: "如何提升工作效率" → `improve-work-efficiency`
 
-### 合并为 PPT
+### 冲突解决
 
+如果 `redbook-{topic-slug}/` 已存在:
+- 追加时间戳: `{topic-slug}-YYYYMMDD-HHMMSS`
+- 示例: `improve-work-efficiency` 已存在 → `improve-work-efficiency-20260123-143052`
+
+### 源文件
+
+使用 `source.md` 或 `source-{原文件名}` 保存源文章。
+
+## 工作流程
+
+### 步骤 1: 获取文章内容
+
+1. **处理输入**:
+   - 如果是 URL: 抓取网页内容
+   - 如果是文件路径: 读取文件内容
+   - 如果是文本: 直接使用
+
+2. **保存源内容**:
+   - 创建工作目录: `redbook-{topic-slug}/`
+   - 保存源文件到 `source.md` 或 `source-{原文件名}`
+
+### 步骤 2: 分析和拆解文章
+
+1. **使用模板**: 读取 `${SKILL_DIR}/references/文章拆解模板.md`
+2. **分析内容**: 确定主题、核心观点、图片数量
+3. **生成拆解方案**: 输出图片序列和每张图的核心内容
+
+### 步骤 3: 生成提示词文件
+
+1. **创建提示词目录**: `redbook-{topic-slug}/prompts/`
+2. **根据图片类型选择模板**:
+   - 封面图: 使用 `${SKILL_DIR}/references/封面图模板.md`
+   - 内容图: 使用 `${SKILL_DIR}/references/内容图模板.md`
+   - 结尾图: 使用 `${SKILL_DIR}/references/结尾图模板.md`
+3. **生成提示词**: 为每张图生成独立的提示词文件
+   - 文件命名: `01_封面图.md`, `02_内容图_关键词.md`, `03_结尾图.md`
+
+### 步骤 4: 生成图片
+
+**图片生成技能选择**:
+1. 检查可用的图片生成技能
+2. 如果有多个技能可用，询问用户选择
+
+**生成**:
+使用提示词文件、输出路径调用选定的图片生成技能。
+
+- 输出目录: `redbook-{topic-slug}/images/`
+- 逐张生成，显示进度
+- 图片按序号排序
+
+### 步骤 5: 后处理（可选）
+
+**合并长图** (需要 ImageMagick):
 ```bash
-node ~/.claude/skills/pw-image-generation/scripts/merge-to-pptx.js ./images 小红书配图.pptx
+brew install imagemagick
+node ~/.claude/skills/pw-image-generation/scripts/merge-to-long-image.js \
+  redbook-{topic-slug}/images \
+  redbook-{topic-slug}/长图.png
 ```
 
----
+**合并为 PPT**:
+```bash
+node ~/.claude/skills/pw-image-generation/scripts/merge-to-pptx.js \
+  redbook-{topic-slug}/images \
+  redbook-{topic-slug}/配图.pptx
+```
 
-## 参考文档
+**合并为 PDF**:
+```bash
+node ~/.claude/skills/pw-image-generation/scripts/merge-to-pdf.js \
+  redbook-{topic-slug}/images \
+  redbook-{topic-slug}/配图.pdf
+```
 
-| 文件 | 说明 |
+### 步骤 6: 输出摘要
+
+```
+小红书系列图已生成!
+
+主题: [主题]
+图片数量: [数量] 张
+工作目录: redbook-{topic-slug}/
+
+后续步骤:
+- 预览所有图片确认风格一致性
+- 如需要可使用合并工具生成长图、PPT 或 PDF
+```
+
+## 注意事项
+
+- 第一张图很重要 - 确定风格后再批量生成
+- 作者信息统一 - 所有图片右下角统一格式
+- 风格一致性 - 所有图片使用相同的风格关键词和配色方案
+- 保持简洁 - 每张图不要放太多内容，多留白
+- 提示词质量 - 避免 Markdown 格式，使用英文提示词效果更好
+
+## 模板参考
+
+| 模板文件 | 用途 |
 |------|------|
 | `references/文章拆解模板.md` | 将文章拆解为系列图的模板 |
 | `references/封面图模板.md` | 封面图提示词模板 |
 | `references/内容图模板.md` | 内容图提示词模板 |
 | `references/结尾图模板.md` | 结尾图提示词模板 |
 
----
+## 扩展支持
 
-## 注意事项
+通过 EXTEND.md 支持自定义配置。
 
-1. **第一张图很重要**: 确定风格后再批量生成
-2. **作者信息统一**: 所有图片右下角 "@用户名"，小号字体，浅灰色
-3. **避免 Markdown 格式**: 提示词中不要使用 `**加粗**` 等格式标记
-4. **保持简洁**: 每张图不要放太多内容，多留白
+**检查路径**（优先级顺序）:
+1. `.pw-skills/pw-redbook-image/EXTEND.md`（项目级）
+2. `~/.pw-skills/pw-redbook-image/EXTEND.md`（用户级）
+
+如果找到，在工作流程之前加载。扩展内容会覆盖默认值。
