@@ -1,26 +1,36 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
 /**
  * 分析图像的风格和特征
  *
  * 使用方法：
- * node scripts/analyze-image.js <图像URL或路径> [输出目录]
+ * npx -y bun ${SKILL_DIR}/scripts/analyze-image.ts <图像URL或路径> [输出目录]
  *
  * 示例：
- * node scripts/analyze-image.js https://example.com/image.png
- * node scripts/analyze-image.js ./local-image.png ./output
+ * npx -y bun ${SKILL_DIR}/scripts/analyze-image.ts https://example.com/image.png
+ * npx -y bun ${SKILL_DIR}/scripts/analyze-image.ts ./local-image.png ./output
  */
 
 import fs from 'fs';
 import path from 'path';
 import https from 'https';
 import http from 'http';
-import fetch from 'node-fetch';
+
+// 配置类型定义
+interface Config {
+  API_BASE_URL: string;
+  ANALYSIS_MODEL_ID: string;
+  GENERATION_MODEL_ID: string;
+  ANALYSIS_ENDPOINT: string;
+  GENERATION_ENDPOINT: string;
+  API_KEY: string;
+  IMAGE_UPLOAD_ENDPOINT: string;
+}
 
 // 读取配置（支持默认配置）
-function loadConfig() {
+function loadConfig(): Config {
   const configPath = path.join(process.cwd(), 'config', 'secrets.md');
-  const defaultConfig = {
+  const defaultConfig: Config = {
     API_BASE_URL: 'https://ai-router.plugins-world.cn',
     ANALYSIS_MODEL_ID: 'gemini-2.0-flash-exp',
     GENERATION_MODEL_ID: 'gemini-3-pro-image-preview',
@@ -46,26 +56,26 @@ function loadConfig() {
     configContent.split('\n').forEach(line => {
       const match = line.match(/^([A-Z_]+)=(.+)$/);
       if (match) {
-        config[match[1]] = match[2];
+        (config as any)[match[1]] = match[2];
       }
     });
 
     return config;
 
-  } catch (error) {
+  } catch (error: any) {
     console.warn('警告: 读取配置文件失败，使用默认配置:', error.message);
     return defaultConfig;
   }
 }
 
 // 构建完整的 API URL
-function buildApiUrl(config, endpointTemplate, modelId) {
+function buildApiUrl(config: Config, endpointTemplate: string, modelId: string): string {
   const endpoint = endpointTemplate.replace('{model}', modelId);
   return `${config.API_BASE_URL}${endpoint}`;
 }
 
 // 下载图像
-function downloadImage(url, outputPath) {
+function downloadImage(url: string, outputPath: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const protocol = url.startsWith('https') ? https : http;
 
@@ -75,7 +85,7 @@ function downloadImage(url, outputPath) {
         return;
       }
 
-      const chunks = [];
+      const chunks: Buffer[] = [];
       response.on('data', (chunk) => chunks.push(chunk));
       response.on('end', () => {
         const buffer = Buffer.concat(chunks);
@@ -87,9 +97,9 @@ function downloadImage(url, outputPath) {
 }
 
 // 调用 API 分析图像
-async function analyzeImage(imagePath, config) {
+async function analyzeImage(imagePath: string, config: Config): Promise<string> {
 
-  // 读���图像并转换为 base64
+  // 读取图像并转换为 base64
   const imageBuffer = fs.readFileSync(imagePath);
   const base64Image = imageBuffer.toString('base64');
 
@@ -151,11 +161,11 @@ async function main() {
   const outputDir = process.argv[3] || path.join(process.cwd(), 'output');
 
   if (!imageUrl) {
-    console.error('使用方法: node scripts/analyze-image.js <图像URL或路径> [输出目录]');
+    console.error('使用方法: npx -y bun ${SKILL_DIR}/scripts/analyze-image.ts <图像URL或路径> [输出目录]');
     console.error('');
     console.error('示例:');
-    console.error('  node scripts/analyze-image.js https://example.com/image.png');
-    console.error('  node scripts/analyze-image.js ./local-image.png ./output');
+    console.error('  npx -y bun ${SKILL_DIR}/scripts/analyze-image.ts https://example.com/image.png');
+    console.error('  npx -y bun ${SKILL_DIR}/scripts/analyze-image.ts ./local-image.png ./output');
     process.exit(1);
   }
 
@@ -169,7 +179,7 @@ async function main() {
 
     // 下载或读取图像
     console.log('读取图像...');
-    let localImagePath;
+    let localImagePath: string;
     let isLocal = !imageUrl.startsWith('http');
 
     if (!isLocal) {
@@ -217,7 +227,7 @@ ${analysis}
     console.log('结果保存到:', outputFile);
     console.log('参考图像保存在:', path.join(outputDir, 'config.example', path.basename(imageUrl)));
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('错误:', error.message);
     process.exit(1);
   }

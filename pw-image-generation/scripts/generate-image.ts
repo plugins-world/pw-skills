@@ -1,10 +1,10 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
 /**
  * 生成图像脚本
  *
  * 使用方法：
- * node scripts/generate-image.js [输出目录]
+ * npx -y bun ${SKILL_DIR}/scripts/generate-image.ts [输出目录]
  *
  * 输出目录结构：
  * images/                # 生成的图像 (默认)
@@ -15,7 +15,24 @@
 import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
-import fetch from 'node-fetch';
+
+// 配置类型定义
+interface Config {
+  API_BASE_URL: string;
+  ANALYSIS_MODEL_ID: string;
+  GENERATION_MODEL_ID: string;
+  ANALYSIS_ENDPOINT: string;
+  GENERATION_ENDPOINT: string;
+  API_KEY: string;
+  IMAGE_UPLOAD_ENDPOINT: string;
+}
+
+// 提示词文件类型
+interface PromptFile {
+  file: string;
+  prompt: string;
+  content: string;
+}
 
 // 创建 readline 接口用于用户交互
 const rl = readline.createInterface({
@@ -24,11 +41,11 @@ const rl = readline.createInterface({
 });
 
 // 读取配置（支持默认配置）
-function loadConfig() {
+function loadConfig(): Config {
   const projectConfigPath = path.join(process.cwd(), 'config', 'secrets.md');
-  const globalConfigPath = path.join(process.env.HOME, '.claude', 'skills', 'pw-image-generation', 'config', 'secrets.md');
+  const globalConfigPath = path.join(process.env.HOME || '', '.claude', 'skills', 'pw-image-generation', 'config', 'secrets.md');
 
-  const defaultConfig = {
+  const defaultConfig: Config = {
     API_BASE_URL: 'https://ai-router.plugins-world.cn',
     ANALYSIS_MODEL_ID: 'gemini-2.0-flash-exp',
     GENERATION_MODEL_ID: 'gemini-3-pro-image-preview',
@@ -39,7 +56,7 @@ function loadConfig() {
   };
 
   // 优先使用项目配置,其次全局配置,最后默认配置
-  let configPath = null;
+  let configPath: string | null = null;
   if (fs.existsSync(projectConfigPath)) {
     configPath = projectConfigPath;
     console.log('使用项目配置:', projectConfigPath);
@@ -63,26 +80,26 @@ function loadConfig() {
     configContent.split('\n').forEach(line => {
       const match = line.match(/^([A-Z_]+)=(.+)$/);
       if (match) {
-        config[match[1]] = match[2];
+        (config as any)[match[1]] = match[2];
       }
     });
 
     return config;
 
-  } catch (error) {
+  } catch (error: any) {
     console.warn('警告: 读取配置文件失败，使用默认配置:', error.message);
     return defaultConfig;
   }
 }
 
 // 构建完整的 API URL
-function buildApiUrl(config, endpointTemplate, modelId) {
+function buildApiUrl(config: Config, endpointTemplate: string, modelId: string): string {
   const endpoint = endpointTemplate.replace('{model}', modelId);
   return `${config.API_BASE_URL}${endpoint}`;
 }
 
 // 用户确认
-function askUser(question) {
+function askUser(question: string): Promise<string> {
   return new Promise((resolve) => {
     rl.question(question, (answer) => {
       resolve(answer.trim().toLowerCase());
@@ -91,8 +108,8 @@ function askUser(question) {
 }
 
 // 调用 API 生成图像
-async function generateImage(prompt, referenceImagePath, config) {
-  const requestBody = {
+async function generateImage(prompt: string, referenceImagePath: string | null, config: Config): Promise<Buffer> {
+  const requestBody: any = {
     contents: [
       {
         role: "user",
@@ -159,7 +176,7 @@ async function generateImage(prompt, referenceImagePath, config) {
 }
 
 // 读取风格分析文件
-function readStyleAnalysis(outputDir) {
+function readStyleAnalysis(outputDir: string): string | null {
   const analysisDir = path.join(outputDir, 'analysis');
   if (!fs.existsSync(analysisDir)) {
     return null;
@@ -177,7 +194,7 @@ function readStyleAnalysis(outputDir) {
 }
 
 // 读取提示词文件
-function readPromptFiles(outputDir) {
+function readPromptFiles(outputDir: string): PromptFile[] {
   // 优先从当前目录的 prompts/ 查找
   let promptsDir = path.join(process.cwd(), 'prompts');
 
@@ -261,7 +278,7 @@ async function main() {
       console.error('错误: 未找到提示词文件');
       console.error('');
       console.error('请先创建提示词文件，参考:');
-      console.error('  ~/.claude/skills/pw-image-generation/config.example/prompt-templates/提示词模板.md');
+      console.error('  ~/.claude/skills/pw-image-generation/references/prompt-templates/提示词模板.md');
       console.error('');
       console.error('提示词文件格式:');
       console.error('  ## 提示词');
@@ -324,7 +341,7 @@ async function main() {
       }
 
       // 检查是否有参考图像
-      let referenceImagePath = null;
+      let referenceImagePath: string | null = null;
       const refMatch = content.match(/参考图像:\s*\[!\[.*?\]\((.+?)\)\]/);
       if (refMatch) {
         const relativeRefPath = refMatch[1];
@@ -349,7 +366,7 @@ async function main() {
         console.log(`\n✓ 图像生成成功! (${elapsed}秒)`);
         console.log(`  保存到: ${imagePath}\n`);
 
-      } catch (error) {
+      } catch (error: any) {
         console.error('\n✗ 图像生成失败:', error.message);
         const retry = await askUser('是否重试? (y/n, 默认: n): ');
         if (retry === 'y') {
@@ -364,7 +381,7 @@ async function main() {
     console.log('='.repeat(60));
     console.log(`\n生成的图像保存在: ${imagesDir}\n`);
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('\n错误:', error.message);
     process.exit(1);
   } finally {

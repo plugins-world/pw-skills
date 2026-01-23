@@ -1,24 +1,35 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
+
 /**
- * delete-image.js - 删除图床上的图片
+ * delete-image.ts - 删除图床上的图片
  *
  * 用法:
- *   node delete-image.js list              # 列出所有上传的图片
- *   node delete-image.js delete <index>    # 删除指定索引的图片
- *   node delete-image.js delete-all        # 删除所有图片
+ *   npx -y bun ${SKILL_DIR}/scripts/delete-image.ts list              # 列出所有上传的图片
+ *   npx -y bun ${SKILL_DIR}/scripts/delete-image.ts delete <index>    # 删除指定索引的图片
+ *   npx -y bun ${SKILL_DIR}/scripts/delete-image.ts delete-all        # 删除所有图片
  */
 
 import fs from 'fs';
 import path from 'path';
 
+// 历史记录类型
+interface HistoryEntry {
+  timestamp: string;
+  file: string;
+  url: string;
+  deleteUrl: string | null;
+  deleteHash: string | null;
+  provider: string;
+}
+
 const historyFile = path.join(process.cwd(), '.upload-history.json');
 
 // 读取上传历史
-function loadHistory() {
+function loadHistory(): HistoryEntry[] {
   if (fs.existsSync(historyFile)) {
     try {
       return JSON.parse(fs.readFileSync(historyFile, 'utf-8'));
-    } catch (err) {
+    } catch (err: any) {
       console.error('读取历史记录失败:', err.message);
       return [];
     }
@@ -27,12 +38,12 @@ function loadHistory() {
 }
 
 // 保存上传历史
-function saveHistory(history) {
+function saveHistory(history: HistoryEntry[]): void {
   fs.writeFileSync(historyFile, JSON.stringify(history, null, 2), 'utf-8');
 }
 
 // 列出所有图片
-function listImages() {
+function listImages(): void {
   const history = loadHistory();
 
   if (history.length === 0) {
@@ -57,7 +68,7 @@ function listImages() {
 }
 
 // 删除指定图片
-function deleteByIndex(index) {
+function deleteByIndex(index: number): void {
   const history = loadHistory();
 
   if (index < 0 || index >= history.length) {
@@ -85,7 +96,7 @@ function deleteByIndex(index) {
 }
 
 // 删除所有图片
-function deleteAll() {
+function deleteAll(): void {
   const history = loadHistory();
 
   if (history.length === 0) {
@@ -113,9 +124,9 @@ const args = process.argv.slice(2);
 
 if (args.length === 0) {
   console.log('用法:');
-  console.log('  node delete-image.js list              # 列出所有上传的图片');
-  console.log('  node delete-image.js delete <index>    # 删除指定索引的图片');
-  console.log('  node delete-image.js delete-all        # 删除所有图片');
+  console.log('  npx -y bun ${SKILL_DIR}/scripts/delete-image.ts list              # 列出所有上传的图片');
+  console.log('  npx -y bun ${SKILL_DIR}/scripts/delete-image.ts delete <index>    # 删除指定索引的图片');
+  console.log('  npx -y bun ${SKILL_DIR}/scripts/delete-image.ts delete-all        # 删除所有图片');
   process.exit(1);
 }
 
@@ -129,7 +140,7 @@ switch (command) {
   case 'delete':
     if (args.length < 2) {
       console.error('错误: 请指定要删除的图片索引');
-      console.log('用法: node delete-image.js delete <index>');
+      console.log('用法: npx -y bun ${SKILL_DIR}/scripts/delete-image.ts delete <index>');
       process.exit(1);
     }
     const index = parseInt(args[1]);

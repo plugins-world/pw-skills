@@ -1,9 +1,10 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
+
 /**
- * images2pptx.js - 将图片文件夹打包成 PPT
+ * images2pptx.ts - 将图片文件夹打包成 PPT
  *
- * 用法: node images2pptx.js <图片目录> [输出文件名]
- * 示例: node images2pptx.js ./slides output.pptx
+ * 用法: npx -y bun ${SKILL_DIR}/scripts/merge-to-pptx.ts <图片目录> [输出文件名]
+ * 示例: npx -y bun ${SKILL_DIR}/scripts/merge-to-pptx.ts ./slides output.pptx
  */
 
 import pptxgen from 'pptxgenjs';
@@ -13,8 +14,8 @@ import path from 'path';
 // 参数解析
 const args = process.argv.slice(2);
 if (args.length < 1) {
-  console.log('用法: node images2pptx.js <图片目录> [输出文件名]');
-  console.log('示例: node images2pptx.js ./slides output.pptx');
+  console.log('用法: npx -y bun ${SKILL_DIR}/scripts/merge-to-pptx.ts <图片目录> [输出文件名]');
+  console.log('示例: npx -y bun ${SKILL_DIR}/scripts/merge-to-pptx.ts ./slides output.pptx');
   process.exit(1);
 }
 
@@ -70,7 +71,7 @@ pptx.writeFile({ fileName: outputPath })
     console.log(`\n✅ PPT 生成成功: ${outputPath}`);
     console.log(`   共 ${images.length} 页`);
   })
-  .catch(err => {
+  .catch((err: any) => {
     console.error('生成失败:', err);
     process.exit(1);
   });

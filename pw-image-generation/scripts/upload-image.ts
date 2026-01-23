@@ -1,20 +1,42 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
+
 /**
- * upload-image.js - 上传图片到图床获取 URL
+ * upload-image.ts - 上传图片到图床获取 URL
  *
- * 用法: node upload-image.js <图片路径>
- * 示例: node upload-image.js ./template/图.001.png
+ * 用法: npx -y bun ${SKILL_DIR}/scripts/upload-image.ts <图片路径>
+ * 示例: npx -y bun ${SKILL_DIR}/scripts/upload-image.ts ./template/图.001.png
  */
 
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 
+// 上传结果类型
+interface UploadResult {
+  success: boolean;
+  url?: string;
+  deleteUrl?: string | null;
+  deleteHash?: string | null;
+  provider?: string;
+  error?: string;
+  note?: string;
+}
+
+// 历史记录类型
+interface HistoryEntry {
+  timestamp: string;
+  file: string;
+  url: string;
+  deleteUrl: string | null;
+  deleteHash: string | null;
+  provider: string;
+}
+
 // 参数解析
 const args = process.argv.slice(2);
 if (args.length < 1) {
-  console.log('用法: node upload-image.js <图片路径>');
-  console.log('示例: node upload-image.js ./template/图.001.png');
+  console.log('用法: npx -y bun ${SKILL_DIR}/scripts/upload-image.ts <图片路径>');
+  console.log('示例: npx -y bun ${SKILL_DIR}/scripts/upload-image.ts ./template/图.001.png');
   process.exit(1);
 }
 
@@ -28,7 +50,7 @@ if (!fs.existsSync(imagePath)) {
 }
 
 // 读取上传历史
-function loadHistory() {
+function loadHistory(): HistoryEntry[] {
   if (fs.existsSync(historyFile)) {
     try {
       return JSON.parse(fs.readFileSync(historyFile, 'utf-8'));
@@ -40,12 +62,12 @@ function loadHistory() {
 }
 
 // 保存上传历史
-function saveHistory(history) {
+function saveHistory(history: HistoryEntry[]): void {
   fs.writeFileSync(historyFile, JSON.stringify(history, null, 2), 'utf-8');
 }
 
 // 上传到 sm.ms
-function uploadToSmMs(imagePath) {
+function uploadToSmMs(imagePath: string): UploadResult {
   console.log('尝试上传到 sm.ms...');
   try {
     const cmd = `curl -s -X POST -F "smfile=@${imagePath}" https://sm.ms/api/v2/upload`;
@@ -73,13 +95,13 @@ function uploadToSmMs(imagePath) {
     } else {
       return { success: false, error: json.message || '未知错误' };
     }
-  } catch (err) {
+  } catch (err: any) {
     return { success: false, error: err.message };
   }
 }
 
 // 上传到 freeimage.host
-function uploadToFreeimage(imagePath) {
+function uploadToFreeimage(imagePath: string): UploadResult {
   console.log('尝试上传到 freeimage.host...');
   try {
     const cmd = `curl -s -X POST -F "source=@${imagePath}" "https://freeimage.host/api/1/upload?key=6d207e02198a847aa98d0a2a901485a5"`;
@@ -96,7 +118,7 @@ function uploadToFreeimage(imagePath) {
     } else {
       return { success: false, error: json.error || '未知错误' };
     }
-  } catch (err) {
+  } catch (err: any) {
     return { success: false, error: err.message };
   }
 }
@@ -111,7 +133,7 @@ if (!result.success) {
   result = uploadToFreeimage(imagePath);
 }
 
-if (result.success) {
+if (result.success && result.url) {
   console.log(`\n✅ 上传成功 (${result.provider}): ${result.url}`);
   if (result.note) {
     console.log(`   注意: ${result.note}`);
@@ -126,7 +148,7 @@ if (result.success) {
     url: result.url,
     deleteUrl: result.deleteUrl || null,
     deleteHash: result.deleteHash || null,
-    provider: result.provider
+    provider: result.provider || 'unknown'
   });
   saveHistory(history);
 
@@ -137,7 +159,7 @@ if (result.success) {
   if (result.deleteHash) {
     console.log(`   删除 Hash: ${result.deleteHash}`);
   }
-  console.log(`\n💡 提示: 使用 delete-image.js 可以批量删除图片`);
+  console.log(`\n💡 提示: 使用 delete-image.ts 可以批量删除图片`);
 } else {
   console.error(`\n❌ 所有图床上传失败`);
   console.error(`   最后错误: ${result.error}`);

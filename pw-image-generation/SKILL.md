@@ -31,21 +31,34 @@ description: AI 图像生成工作流。支持文生图、图生图、批量生�
 
 ---
 
+## 脚本目录
+
+**重要**: 所有脚本位于此技能的 `scripts/` 子目录中。
+
+**Agent 执行说明**:
+1. 确定此 SKILL.md 文件的目录路径为 `SKILL_DIR`
+2. 脚本路径 = `${SKILL_DIR}/scripts/<script-name>.ts`
+3. 将本文档中的所有 `${SKILL_DIR}` 替换为实际路径
+
+**脚本参考**:
+| 脚本 | 用途 |
+|------|------|
+| `scripts/generate-image.ts` | 生成图像的 CLI 入口点 |
+| `scripts/upload-image.ts` | 上传图片到图床 |
+| `scripts/delete-image.ts` | 管理和删除图床图片 |
+| `scripts/merge-to-long-image.ts` | 合并图片为长图 |
+| `scripts/merge-to-pptx.ts` | 打包图片为 PPT |
+| `scripts/analyze-image.ts` | 分析图像风格 |
+
 ## 快速开始
 
-### Step 1: 安装 Skill 依赖
-
-```bash
-cd ~/.claude/skills/pw-image-generation && npm install
-```
-
-### Step 2: 创建项目目录
+### Step 1: 创建项目目录
 
 ```bash
 mkdir my-image-project && cd my-image-project
 ```
 
-### Step 3: 复制配置模板（可选）
+### Step 2: 复制配置模板（可选）
 
 ```bash
 cp -r ~/.claude/skills/pw-image-generation/config.example ./config
@@ -53,7 +66,7 @@ cp ~/.claude/skills/pw-image-generation/references/.gitignore.template ./.gitign
 # 编辑 config/secrets.md 自定义 API 密钥（可选）
 ```
 
-### Step 4: 创建提示词
+### Step 3: 创建提示词
 
 ```bash
 mkdir -p prompts
@@ -63,10 +76,10 @@ vim ./prompts/我的提示词.md
 
 参考 `references/style-library.md` 选择合适的风格。
 
-### Step 5: 生成图像
+### Step 4: 生成图像
 
 ```bash
-node ~/.claude/skills/Image-Generation/scripts/generate-image.js
+npx -y bun ~/.claude/skills/pw-image-generation/scripts/generate-image.ts
 ```
 
 脚本会逐张询问确认，避免浪费额度。
@@ -78,7 +91,7 @@ node ~/.claude/skills/Image-Generation/scripts/generate-image.js
 ### 生成图像
 
 ```bash
-node ~/.claude/skills/pw-image-generation/scripts/generate-image.js [输出目录]
+npx -y bun ~/.claude/skills/pw-image-generation/scripts/generate-image.ts [输出目录]
 ```
 
 ### 上传图片到图床
@@ -86,10 +99,10 @@ node ~/.claude/skills/pw-image-generation/scripts/generate-image.js [输出目�
 将本地图片上传到图床获取 URL（用于图生图）：
 
 ```bash
-node ~/.claude/skills/pw-image-generation/scripts/upload-image.js <图片路径>
+npx -y bun ~/.claude/skills/pw-image-generation/scripts/upload-image.ts <图片路径>
 
 # 示例
-node ~/.claude/skills/pw-image-generation/scripts/upload-image.js ./template/图.001.png
+npx -y bun ~/.claude/skills/pw-image-generation/scripts/upload-image.ts ./template/图.001.png
 ```
 
 **功能**:
@@ -104,13 +117,13 @@ node ~/.claude/skills/pw-image-generation/scripts/upload-image.js ./template/图
 
 ```bash
 # 列出所有上传的图片
-node ~/.claude/skills/pw-image-generation/scripts/delete-image.js list
+npx -y bun ~/.claude/skills/pw-image-generation/scripts/delete-image.ts list
 
 # 删除指定索引的图片
-node ~/.claude/skills/pw-image-generation/scripts/delete-image.js delete 0
+npx -y bun ~/.claude/skills/pw-image-generation/scripts/delete-image.ts delete 0
 
 # 删除所有图片
-node ~/.claude/skills/pw-image-generation/scripts/delete-image.js delete-all
+npx -y bun ~/.claude/skills/pw-image-generation/scripts/delete-image.ts delete-all
 ```
 
 **功能**:
@@ -125,10 +138,10 @@ node ~/.claude/skills/pw-image-generation/scripts/delete-image.js delete-all
 将系列图片合并为一张长图（垂直拼接）：
 
 ```bash
-node ~/.claude/skills/pw-image-generation/scripts/merge-to-long-image.js <图片目录> <输出文件>
+npx -y bun ~/.claude/skills/pw-image-generation/scripts/merge-to-long-image.ts <图片目录> <输出文件>
 
 # 示例
-node ~/.claude/skills/pw-image-generation/scripts/merge-to-long-image.js ./images 长图.png
+npx -y bun ~/.claude/skills/pw-image-generation/scripts/merge-to-long-image.ts ./images 长图.png
 ```
 
 **要求**: 需要安装 ImageMagick
@@ -141,10 +154,10 @@ brew install imagemagick
 将系列图片打包为 PPT 文件（每张图片一页）：
 
 ```bash
-node ~/.claude/skills/pw-image-generation/scripts/merge-to-pptx.js <图片目录> <输出文件>
+npx -y bun ~/.claude/skills/pw-image-generation/scripts/merge-to-pptx.ts <图片目录> <输出文件>
 
 # 示例
-node ~/.claude/skills/pw-image-generation/scripts/merge-to-pptx.js ./images 配图.pptx
+npx -y bun ~/.claude/skills/pw-image-generation/scripts/merge-to-pptx.ts ./images 配图.pptx
 ```
 
 **功能**:
@@ -184,16 +197,13 @@ pw-image-generation/
 │   ├── style-library.md      # 风格库（9种预设风格）
 │   └── prompt-templates/
 │       └── 提示词模板.md     # 提示词模板
-├── scripts/
-│   ├── analyze-image.js      # 分析图像风格
-│   ├── generate-image.js     # 生成图像（支持确认和跳过）
-│   ├── upload-image.js       # 上传图片到图床
-│   ├── delete-image.js       # 管理和删除图床图片
-│   ├── merge-to-long-image.js       # 合并长图
-│   └── merge-to-pptx.js        # 打包为 PPT
-├── node_modules/
-├── package.json
-└── package-lock.json
+└── scripts/
+    ├── analyze-image.ts      # 分析图像风格
+    ├── generate-image.ts     # 生成图像（支持确认和跳过）
+    ├── upload-image.ts       # 上传图片到图床
+    ├── delete-image.ts       # 管理和删除图床图片
+    ├── merge-to-long-image.ts       # 合并长图
+    └── merge-to-pptx.ts        # 打包为 PPT
 ```
 
 ---
@@ -212,12 +222,13 @@ pw-image-generation/
 - 未配置时使用默认配置（需要设置 API_KEY）
 - 配置文件不会提交到版本控制
 
-### 依赖安装
+### 运行环境
 
-依赖安装在 skill 目录，不是项目目录：
+脚本使用 Bun 运行，无需本地安装依赖：
 
 ```bash
-cd ~/.claude/skills/pw-image-generation && npm install
+# 直接运行，Bun 会自动处理依赖
+npx -y bun ~/.claude/skills/pw-image-generation/scripts/generate-image.ts
 ```
 
 ---
@@ -228,16 +239,16 @@ cd ~/.claude/skills/pw-image-generation && npm install
 
 ```bash
 # 从 URL 分析
-node ~/.claude/skills/pw-image-generation/scripts/analyze-image.js <图像URL>
+npx -y bun ~/.claude/skills/pw-image-generation/scripts/analyze-image.ts <图像URL>
 
 # 从本地文件分析
-node ~/.claude/skills/pw-image-generation/scripts/analyze-image.js <本地路径>
+npx -y bun ~/.claude/skills/pw-image-generation/scripts/analyze-image.ts <本地路径>
 ```
 
 ### 生成图像
 
 ```bash
-node ~/.claude/skills/pw-image-generation/scripts/generate-image.js [输出目录]
+npx -y bun ~/.claude/skills/pw-image-generation/scripts/generate-image.ts [输出目录]
 ```
 
 ---

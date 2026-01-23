@@ -1,0 +1,31 @@
+# 项目 .gitignore 文件
+
+# 依赖
+node_modules/
+package-lock.json
+yarn.lock
+
+# 配置文件
+config/secrets.md
+config/local.config.js
+config/.env*
+
+# 输出文件
+output/
+*.log
+*.tmp
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*.temp

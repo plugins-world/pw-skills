@@ -1,13 +1,13 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
 /**
  * 图片合并为长图脚本
  *
  * 使用方法：
- * node merge-images.js <图片目录> <输出文件>
+ * npx -y bun ${SKILL_DIR}/scripts/merge-to-long-image.ts <图片目录> <输出文件>
  *
  * 示例：
- * node merge-images.js ./images output.png
+ * npx -y bun ${SKILL_DIR}/scripts/merge-to-long-image.ts ./images output.png
  */
 
 import fs from 'fs';
@@ -21,7 +21,7 @@ const execAsync = promisify(exec);
 const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
 
 // 读取目录下的所有图片
-function getImageFiles(dir) {
+function getImageFiles(dir: string): string[] {
   const files = fs.readdirSync(dir);
 
   return files
@@ -39,7 +39,7 @@ function getImageFiles(dir) {
 }
 
 // 使用 ImageMagick 合并图片
-async function mergeImagesWithImageMagick(imageFiles, outputFile) {
+async function mergeImagesWithImageMagick(imageFiles: string[], outputFile: string): Promise<boolean> {
   const command = `convert ${imageFiles.map(f => `"${f}"`).join(' ')} -append "${outputFile}"`;
 
   try {
@@ -50,21 +50,15 @@ async function mergeImagesWithImageMagick(imageFiles, outputFile) {
   }
 }
 
-// 使用 sips (macOS 自带) 合并图片
-async function mergeImagesWithSips(imageFiles, outputFile) {
-  // sips 不支持直接合并，需要用其他方法
-  return false;
-}
-
 // 主函数
 async function main() {
   const args = process.argv.slice(2);
 
   if (args.length < 2) {
-    console.error('用法: node merge-images.js <图片目录> <输出文件>');
+    console.error('用法: npx -y bun ${SKILL_DIR}/scripts/merge-to-long-image.ts <图片目录> <输出文件>');
     console.error('');
     console.error('示例:');
-    console.error('  node merge-images.js ./images output.png');
+    console.error('  npx -y bun ${SKILL_DIR}/scripts/merge-to-long-image.ts ./images output.png');
     process.exit(1);
   }
 

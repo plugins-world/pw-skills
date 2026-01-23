@@ -15,3 +15,6 @@ x pw-skills 优化 pw-redbook-image 描述使其更清晰直观
 x pw-skills 强调视觉一致性的重要性（新增专门章节）
 x pw-skills 添加 API Key 获取链接和注册提示
 x pw-skills 强调作者信息一致性和优化提示可见性
+x pw-skills 添加 pw-cover-image 封面图生成技能
+x pw-skills 移植 pw-post-to-wechat 微信公众号发布工具
+x pw-image-generation 重构为 TypeScript，使用 Bun 运行，移除 node_modules 依赖
