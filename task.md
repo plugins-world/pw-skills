@@ -17,4 +17,5 @@ x pw-skills 添加 API Key 获取链接和注册提示
 x pw-skills 强调作者信息一致性和优化提示可见性
 x pw-skills 添加 pw-cover-image 封面图生成技能
 x pw-skills 移植 pw-post-to-wechat 微信公众号发布工具
+x pw-skills 应用 Claude Agent Skills 最佳实践优化所有 pw 技能文档
 x pw-image-generation 重构为 TypeScript，使用 Bun 运行，移除 node_modules 依赖
